@@ -36,7 +36,7 @@ int I2C_ReadReg_16BitAddr(XIicPs *InstancePtr, uint8_t SlaveAddr, uint16_t RegAd
     iic_buf[0] = RegAddr >> 8 & 0xff;
     iic_buf[1] = RegAddr & 0xff;
     Xil_DCacheFlushRange((INTPTR) iic_buf, 2);
-    CHECK_STATUS_RET(XIicPs_MasterSendPolled(InstancePtr, (uint8_t *) &iic_buf, 2, SlaveAddr));
+    CHECK_STATUS_RET(XIicPs_MasterSendPolled(InstancePtr, iic_buf, 2, SlaveAddr));
     Start_Time = getTime_millis();
     while (XIicPs_BusIsBusy(InstancePtr))
         if ((getTime_millis() - Start_Time) > 2) return XST_SEND_ERROR;

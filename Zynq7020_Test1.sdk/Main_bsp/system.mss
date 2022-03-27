@@ -9,8 +9,12 @@ BEGIN OS
  PARAMETER SYSINTC_SPEC = *
  PARAMETER SYSTMR_DEV = *
  PARAMETER SYSTMR_SPEC = true
+ PARAMETER max_task_name_len = 50
  PARAMETER stdin = ps7_uart_1
  PARAMETER stdout = ps7_uart_1
+ PARAMETER use_daemon_task_startup_hook = true
+ PARAMETER use_idle_hook = true
+ PARAMETER use_tick_hook = true
 END
 
 
@@ -18,6 +22,7 @@ BEGIN PROCESSOR
  PARAMETER DRIVER_NAME = cpu_cortexa9
  PARAMETER DRIVER_VER = 2.7
  PARAMETER HW_INSTANCE = ps7_cortexa9_0
+ PARAMETER extra_compiler_flags = -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -nostartfiles -g -Wall -Wextra -DconfigRECORD_STACK_HIGH_ADDRESS=1
 END
 
 

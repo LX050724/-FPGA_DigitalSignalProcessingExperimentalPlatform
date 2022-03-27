@@ -27,12 +27,12 @@
 								<option id="xilinx.gnu.compiler.option.debugging.level.793969509" name="Debug Level" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.2047140401" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arm_math/src/Include}&quot;"/>
 								</option>
 								<option id="xilinx.gnu.compiler.misc.other.1656079536" name="Other flags" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" valueType="string"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.flags.1674130580" name="Software Platform Inferred Flags" superClass="xilinx.gnu.compiler.inferred.swplatform.flags" value="  " valueType="string"/>
 								<option id="xilinx.gnu.compiler.dircategory.includes.1707536004" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arm_math/src/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/Drivers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/Controller}&quot;"/>
@@ -68,7 +68,6 @@
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lfreertos,-lgcc,-lc,--end-group"/>
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxilffs,-lxil,-lgcc,-lc,--end-group"/>
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-llwip4,-lgcc,-lc,--end-group"/>
-									<listOptionValue builtIn="false" value="-Wl,-gc-sections,--print-memory-usage,-Map=Main.map"/>
 								</option>
 								<option id="xilinx.gnu.c.linker.option.lscript.1300969839" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
 								<option id="xilinx.gnu.c.link.option.ldflags.583647322" name="Linker Flags" superClass="xilinx.gnu.c.link.option.ldflags" value=" -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec" valueType="string"/>

@@ -10,17 +10,17 @@ target_include_directories(Main.elf PUBLIC
         "ThirdParty/LVGL/src/widgets"
         "ThirdParty/CJSON"
         "LVGL_App"
-        "${CMAKE_SOURCE_DIR}/Main_bsp/ps7_cortexa9_0/include"
         )
 
-target_compile_definitions(Main.elf PUBLIC __USE_RTOS LV_LVGL_H_INCLUDE_SIMPLE LV_DEMO_CONF_INCLUDE_SIMPLE DEBUG)
-target_link_libraries(Main.elf PUBLIC Main_Bsp c gcc m arm_math)
-target_link_directories(Main.elf PUBLIC ${CMAKE_SOURCE_DIR}/Main_bsp/ps7_cortexa9_0/lib)
+target_compile_definitions(Main.elf PUBLIC __USE_RTOS LV_LVGL_H_INCLUDE_SIMPLE LV_DEMO_CONF_INCLUDE_SIMPLE DEBUG IN_CLION)
+target_link_libraries(Main.elf PUBLIC MainBsp c gcc m arm_math)
+target_link_directories(Main.elf PUBLIC ${CMAKE_SOURCE_DIR}/Main_bsp/ps7_cortexa9_0/lib cmake-build-debug-mingw-arm-none-eabi-gcc/Main_bsp)
 target_link_options(Main.elf PUBLIC
-        -specs=Xilinx.spec
+        --specs=Xilinx.spec
         -Wl,-gc-sections,--print-memory-usage,-Map=Main.map
         -T ${LINKER_SCRIPT}
         )
+
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/Main.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/Main.bin)

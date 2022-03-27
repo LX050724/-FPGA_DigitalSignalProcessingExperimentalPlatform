@@ -10,4 +10,11 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="scannerConfiguration"/>
+	<storageModule moduleId="org.eclipse.cdt.core.pathentry">
+		<pathentry kind="mac" name="configGENERATE_RUN_TIME_STATS" path="" value="1"/>
+		<pathentry kind="mac" name="configRECORD_STACK_HIGH_ADDRESS" path="" value="1"/>
+		<pathentry kind="src" path=""/>
+		<pathentry kind="out" path=""/>
+	</storageModule>
 </cproject>

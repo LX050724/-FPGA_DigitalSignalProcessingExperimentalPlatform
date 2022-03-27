@@ -1,7 +1,7 @@
 /*
  * my_lvgl_init.c
  *
- *  Created on: 2021骞�12鏈�25鏃�
+ *  Created on: 2021年12月25日
  *      Author: yaoji
  */
 
@@ -24,19 +24,16 @@ static lv_disp_t *disp = NULL;
 
 static GT911_Typedef gt911;
 
-static void zynq_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p);
-static void zynq_monitor_cb(lv_disp_drv_t *disp_drv, uint32_t time, uint32_t px);
+static void zynq_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_p);
+static void zynq_monitor_cb(lv_disp_drv_t *drv, uint32_t time, uint32_t px);
 static void zynq_lv_log_print(const char *buf);
-static void zynq_touch_read(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data);
+static void zynq_touch_read(lv_indev_drv_t *drv, lv_indev_data_t *data);
 
 #ifdef __USE_RTOS
 xSemaphoreHandle LVGL_Mutex = NULL;
 static TaskHandle_t rtos_TaskHandle;
 
 static void zynq_lv_timerTask(void *pvParameters) {
-    LVGL_Mutex = xSemaphoreCreateMutex();
-    CHECK_FATAL_ERROR(LVGL_Mutex == NULL);
-
     portTickType xLastExecutionTime = xTaskGetTickCount();
     for (;;) {
         xSemaphoreTake(LVGL_Mutex, portMAX_DELAY);
@@ -49,6 +46,9 @@ static void zynq_lv_timerTask(void *pvParameters) {
 #endif
 
 void zynq_lvgl_init(XIicPs *iic, XGpioPs *gpio) {
+    LVGL_Mutex = xSemaphoreCreateMutex();
+    CHECK_FATAL_ERROR(LVGL_Mutex == NULL);
+
     lv_init();
     lv_img_cache_set_size(1);
     lv_log_register_print_cb(zynq_lv_log_print);
@@ -95,12 +95,12 @@ void zynq_lvgl_init(XIicPs *iic, XGpioPs *gpio) {
 #endif
 }
 
-static void zynq_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p) {
+static void zynq_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_p) {
     Xil_DCacheFlushRange((INTPTR) color_p, VDMA_BUFFER_SIZE);
     VDMA_SetBufferIndex((void *) color_p == (void *) GRAM0 ? 0 : 1);
 }
 
-static void zynq_monitor_cb(lv_disp_drv_t *disp_drv, uint32_t time, uint32_t px) {
+static void zynq_monitor_cb(lv_disp_drv_t *drv, uint32_t time, uint32_t px) {
     lv_mem_monitor_t mon;
     lv_mem_monitor(&mon);
     xil_printf("refreshed in %3d ms, memory used %dbyte %3d%%\r\n", time, mon.used_cnt,
@@ -119,7 +119,7 @@ static void zynq_lv_log_print(const char *buf) {
     os_free(gbk);
 }
 
-static void zynq_touch_read(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
+static void zynq_touch_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
     static lv_coord_t last_x = 0;
     static lv_coord_t last_y = 0;
     GT911_TouchPointTypedef t = {0};

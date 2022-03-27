@@ -74,8 +74,12 @@
 #include "XADC_Driver/XADC_Driver.h"
 #include "cJSON.h"
 #include "AmplitudeResponse/AmplitudeResponse.h"
+#include "xtime_l.h"
+#include "AxisSwitch_Driver/AxisSwitch_Driver.h"
+#include "Controller/FIR_Controller.h"
 
 #include <math.h>
+#include <malloc.h>
 
 XIicPs iic0, iic1;
 XGpioPs gpio;
@@ -92,6 +96,9 @@ static XAxiDma_Bd DMA1_RxBd[64] __attribute__((aligned(64)));
 static TaskHandle_t DefaultTaskHandle;
 static void DefaultTask(void *pvParameters);
 
+static TaskHandle_t MonitorTaskHandle;
+static void MonitorTask(void *pvParameters);
+
 int main() {
     init_platform();
 
@@ -100,7 +107,7 @@ int main() {
      */
     xTaskCreate(DefaultTask,      /* The function that implements the task. */
                 "DefaultTask",    /* Text name for the task, provided to assist debugging only. */
-                1024,             /* The stack allocated to the task. */
+                2048,             /* The stack allocated to the task. */
                 NULL,             /* The task parameter is not used, so set to NULL. */
                 tskIDLE_PRIORITY, /* The task runs at the idle priority. */
                 &DefaultTaskHandle);
@@ -111,25 +118,36 @@ int main() {
     return 0;
 }
 
+void vApplicationTickHook(void) {
+    static uint32_t count = 0;
+    if (count++ == configTICK_RATE_HZ * 10) {
+        struct mallinfo mi = mallinfo();
+        xil_printf("heap_malloc_total=%d heap_free_total=%d heap_in_use=%d\n",
+               mi.arena, mi.fordblks, mi.uordblks);
+        count = 0;
+    }
+}
+
+void vApplicationIdleHook(void) {
+}
+
+void vApplicationDaemonTaskStartupHook() {
+}
+
 static void DefaultTask(void *pvParameters) {
     vPortEnterCritical();
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG0_OFFSET, 128);
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG1_OFFSET, 128);
-
     cJSON_Hooks hooks = {
             .free_fn = os_free,
             .malloc_fn = os_malloc,
     };
     cJSON_InitHooks(&hooks);
 
-    CHECK_STATUS(XADC_Init(&xAdcPs, XPAR_XADCPS_0_DEVICE_ID));
+    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG0_OFFSET, 128);
+    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG1_OFFSET, 128);
 
-    /**
-     * 初始化XAxis Switch并关闭所有输出
-     */
-    XAxis_Switch_Config *switchConfig = XAxisScr_LookupConfig(XPAR_AXIS_SWITCH_0_DEVICE_ID);
-    CHECK_STATUS(XAxisScr_CfgInitialize(&axisSwitch, switchConfig, switchConfig->BaseAddress));
-    XAxisScr_MiPortDisableAll(&axisSwitch);
+    CHECK_STATUS(AxisSwitch_init());
+
+    CHECK_STATUS(XADC_Init(&xAdcPs, XPAR_XADCPS_0_DEVICE_ID));
 
     CHECK_STATUS(Fatfs_Init());
     network_init();
@@ -153,6 +171,7 @@ static void DefaultTask(void *pvParameters) {
     CHECK_STATUS(DMA_SetTxRing(&dma1, DMA1_TxBd, sizeof(DMA1_TxBd)));
     CHECK_STATUS(DMA_SetRxRing(&dma1, DMA1_RxBd, sizeof(DMA1_RxBd)));
     CHECK_STATUS(FFT_init_dma_channel(&dma1));
+    CHECK_STATUS(FIR_init_dma_channel(&dma1));
 
     struct tm t = {0};
     DS1337_GetTime(&iic1, &t);

@@ -1,4 +1,241 @@
+#file(GLOB_RECURSE SOURCES ps7_cortexa9_0/libsrc/*.c ps7_cortexa9_0/libsrc/*.s)
+#
+#file(GLOB_RECURSE REMOVE_SOURCES
+#        ps7_cortexa9_0/libsrc/lwip202_v1_2/*.*
+#        ps7_cortexa9_0/libsrc/standalone_v6_8/src/profile/*.*
+#        )
+#
+#list(REMOVE_ITEM SOURCES ${REMOVE_SOURCES})
+#
 
-file(GLOB_RECURSE SOURCES ./*.c ./*.h)
+set(XIL_FILES
+        ps7_cortexa9_0/libsrc/AXI4_IO_v1_0/src/AXI4_IO_selftest.c
+        ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma.c
+        ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma_bd.c
+        ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma_bdring.c
+        ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma_g.c
+        ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma_selftest.c
+        ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma_sinit.c
+        ps7_cortexa9_0/libsrc/axis_switch_v1_2/src/xaxis_switch.c
+        ps7_cortexa9_0/libsrc/axis_switch_v1_2/src/xaxis_switch_g.c
+        ps7_cortexa9_0/libsrc/axis_switch_v1_2/src/xaxis_switch_selftest.c
+        ps7_cortexa9_0/libsrc/axis_switch_v1_2/src/xaxis_switch_sinit.c
+        ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma.c
+        ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma_channel.c
+        ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma_g.c
+        ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma_intr.c
+        ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma_selftest.c
+        ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma_sinit.c
+        ps7_cortexa9_0/libsrc/coresightps_dcc_v1_4/src/xcoresightpsdcc.c
+        ps7_cortexa9_0/libsrc/devcfg_v3_5/src/xdevcfg.c
+        ps7_cortexa9_0/libsrc/devcfg_v3_5/src/xdevcfg_g.c
+        ps7_cortexa9_0/libsrc/devcfg_v3_5/src/xdevcfg_hw.c
+        ps7_cortexa9_0/libsrc/devcfg_v3_5/src/xdevcfg_intr.c
+        ps7_cortexa9_0/libsrc/devcfg_v3_5/src/xdevcfg_selftest.c
+        ps7_cortexa9_0/libsrc/devcfg_v3_5/src/xdevcfg_sinit.c
+        ps7_cortexa9_0/libsrc/dmaps_v2_4/src/xdmaps.c
+        ps7_cortexa9_0/libsrc/dmaps_v2_4/src/xdmaps_g.c
+        ps7_cortexa9_0/libsrc/dmaps_v2_4/src/xdmaps_hw.c
+        ps7_cortexa9_0/libsrc/dmaps_v2_4/src/xdmaps_selftest.c
+        ps7_cortexa9_0/libsrc/dmaps_v2_4/src/xdmaps_sinit.c
+        ps7_cortexa9_0/libsrc/emacps_v3_8/src/xemacps.c
+        ps7_cortexa9_0/libsrc/emacps_v3_8/src/xemacps_bdring.c
+        ps7_cortexa9_0/libsrc/emacps_v3_8/src/xemacps_control.c
+        ps7_cortexa9_0/libsrc/emacps_v3_8/src/xemacps_g.c
+        ps7_cortexa9_0/libsrc/emacps_v3_8/src/xemacps_hw.c
+        ps7_cortexa9_0/libsrc/emacps_v3_8/src/xemacps_intr.c
+        ps7_cortexa9_0/libsrc/emacps_v3_8/src/xemacps_sinit.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/inbyte.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/outbyte.c
+        ps7_cortexa9_0/libsrc/gpiops_v3_4/src/xgpiops.c
+        ps7_cortexa9_0/libsrc/gpiops_v3_4/src/xgpiops_g.c
+        ps7_cortexa9_0/libsrc/gpiops_v3_4/src/xgpiops_hw.c
+        ps7_cortexa9_0/libsrc/gpiops_v3_4/src/xgpiops_intr.c
+        ps7_cortexa9_0/libsrc/gpiops_v3_4/src/xgpiops_selftest.c
+        ps7_cortexa9_0/libsrc/gpiops_v3_4/src/xgpiops_sinit.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps_g.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps_hw.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps_intr.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps_master.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps_options.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps_selftest.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps_sinit.c
+        ps7_cortexa9_0/libsrc/iicps_v3_8/src/xiicps_slave.c
+        ps7_cortexa9_0/libsrc/qspips_v3_5/src/xqspips.c
+        ps7_cortexa9_0/libsrc/qspips_v3_5/src/xqspips_g.c
+        ps7_cortexa9_0/libsrc/qspips_v3_5/src/xqspips_hw.c
+        ps7_cortexa9_0/libsrc/qspips_v3_5/src/xqspips_options.c
+        ps7_cortexa9_0/libsrc/qspips_v3_5/src/xqspips_selftest.c
+        ps7_cortexa9_0/libsrc/qspips_v3_5/src/xqspips_sinit.c
+        ps7_cortexa9_0/libsrc/scugic_v3_10/src/xscugic.c
+        ps7_cortexa9_0/libsrc/scugic_v3_10/src/xscugic_g.c
+        ps7_cortexa9_0/libsrc/scugic_v3_10/src/xscugic_hw.c
+        ps7_cortexa9_0/libsrc/scugic_v3_10/src/xscugic_intr.c
+        ps7_cortexa9_0/libsrc/scugic_v3_10/src/xscugic_selftest.c
+        ps7_cortexa9_0/libsrc/scugic_v3_10/src/xscugic_sinit.c
+        ps7_cortexa9_0/libsrc/scutimer_v2_1/src/xscutimer.c
+        ps7_cortexa9_0/libsrc/scutimer_v2_1/src/xscutimer_g.c
+        ps7_cortexa9_0/libsrc/scutimer_v2_1/src/xscutimer_selftest.c
+        ps7_cortexa9_0/libsrc/scutimer_v2_1/src/xscutimer_sinit.c
+        ps7_cortexa9_0/libsrc/scuwdt_v2_1/src/xscuwdt.c
+        ps7_cortexa9_0/libsrc/scuwdt_v2_1/src/xscuwdt_g.c
+        ps7_cortexa9_0/libsrc/scuwdt_v2_1/src/xscuwdt_selftest.c
+        ps7_cortexa9_0/libsrc/scuwdt_v2_1/src/xscuwdt_sinit.c
+        ps7_cortexa9_0/libsrc/sdps_v3_6/src/xsdps.c
+        ps7_cortexa9_0/libsrc/sdps_v3_6/src/xsdps_g.c
+        ps7_cortexa9_0/libsrc/sdps_v3_6/src/xsdps_options.c
+        ps7_cortexa9_0/libsrc/sdps_v3_6/src/xsdps_sinit.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/abort.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/boot.S
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/close.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/cpu_init.S
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/errno.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/fcntl.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/fstat.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/getpid.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/inbyte.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/isatty.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/kill.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/lseek.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/open.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/outbyte.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/print.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/putnum.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/read.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/sbrk.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/sleep.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/translation_table.S
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/unlink.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/usleep.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/vectors.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/write.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil-crt0.S
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_assert.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_cache.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_exception.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_io.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_mem.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_misc_psreset_api.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_mmu.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_printf.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_sleepcommon.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_testio.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xil_testmem.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xl2cc_counter.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xplatform_info.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xpm_counter.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/xtime_l.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/_exit.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/_open.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/_sbrk.c
+        ps7_cortexa9_0/libsrc/uartps_v3_7/src/xuartps.c
+        ps7_cortexa9_0/libsrc/uartps_v3_7/src/xuartps_g.c
+        ps7_cortexa9_0/libsrc/uartps_v3_7/src/xuartps_hw.c
+        ps7_cortexa9_0/libsrc/uartps_v3_7/src/xuartps_intr.c
+        ps7_cortexa9_0/libsrc/uartps_v3_7/src/xuartps_options.c
+        ps7_cortexa9_0/libsrc/uartps_v3_7/src/xuartps_selftest.c
+        ps7_cortexa9_0/libsrc/uartps_v3_7/src/xuartps_sinit.c
+        ps7_cortexa9_0/libsrc/usbps_v2_4/src/xusbps.c
+        ps7_cortexa9_0/libsrc/usbps_v2_4/src/xusbps_endpoint.c
+        ps7_cortexa9_0/libsrc/usbps_v2_4/src/xusbps_g.c
+        ps7_cortexa9_0/libsrc/usbps_v2_4/src/xusbps_hw.c
+        ps7_cortexa9_0/libsrc/usbps_v2_4/src/xusbps_intr.c
+        ps7_cortexa9_0/libsrc/usbps_v2_4/src/xusbps_sinit.c
+        ps7_cortexa9_0/libsrc/xadcps_v2_3/src/xadcps.c
+        ps7_cortexa9_0/libsrc/xadcps_v2_3/src/xadcps_g.c
+        ps7_cortexa9_0/libsrc/xadcps_v2_3/src/xadcps_intr.c
+        ps7_cortexa9_0/libsrc/xadcps_v2_3/src/xadcps_selftest.c
+        ps7_cortexa9_0/libsrc/xadcps_v2_3/src/xadcps_sinit.c
+        )
 
-add_library(Main_Bsp ${SOURCES})
+set(LWIP_FILES
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/init.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/def.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/dns.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/inet_chksum.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ip.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/mem.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/memp.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/netif.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/pbuf.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/raw.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/stats.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/timeouts.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/sys.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/netif/ethernet.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv4/etharp.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv4/ip4_addr.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv4/icmp.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv4/igmp.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv4/ip4.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv4/ip4_frag.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv4/autoip.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/inet6.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/ip6_addr.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/ip6_frag.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/icmp6.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/ip6.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/dhcp6.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/ethip6.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/mld6.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv6/nd6.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/tcp.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/tcp_in.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/tcp_out.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/udp.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/core/ipv4/dhcp.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/api/api_lib.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/api/api_msg.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/api/err.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/api/netbuf.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/api/netdb.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/api/netifapi.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/api/sockets.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/lwip-2.0.2/src/api/tcpip.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/sys_arch_raw.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/netif/xpqueue.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/netif/xadapter.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/netif/xtopology_g.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/sys_arch.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/netif/xemacpsif_hw.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/netif/xemacpsif_physpeed.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/netif/xemacpsif.c
+        ps7_cortexa9_0/libsrc/lwip202_v1_2/src/contrib/ports/xilinx/netif/xemacpsif_dma.c
+        )
+
+set(FREERTOS_SRC
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/event_groups.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/heap_4.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/inbyte.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/list.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/outbyte.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/port.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/portASM.S
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/portZynq7000.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/port_asm_vectors.S
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/queue.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/tasks.c
+        ps7_cortexa9_0/libsrc/freertos10_xilinx_v1_2/src/timers.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/inbyte.c
+        ps7_cortexa9_0/libsrc/standalone_v6_8/src/outbyte.c
+        )
+
+set(FF_SRC
+        ps7_cortexa9_0/libsrc/xilffs_v4_0/src/diskio.c
+        ps7_cortexa9_0/libsrc/xilffs_v4_0/src/ff.c
+        ps7_cortexa9_0/libsrc/xilffs_v4_0/src/ffunicode.c
+        )
+
+#
+#add_library(Main_Bsp ${SOURCES} ${LWIP_FILES})
+#
+#target_compile_options(Main_Bsp PUBLIC -w)
+
+add_library(MainBsp ${LWIP_FILES} ${XIL_FILES} ${FREERTOS_SRC} ${FF_SRC})
+target_compile_definitions(MainBsp PRIVATE
+        configGENERATE_RUN_TIME_STATS=1
+        configRECORD_STACK_HIGH_ADDRESS=1)
+target_include_directories(MainBsp PUBLIC ps7_cortexa9_0/include)
+target_link_libraries(MainBsp PUBLIC c gcc)
+target_compile_options(MainBsp PRIVATE -w)

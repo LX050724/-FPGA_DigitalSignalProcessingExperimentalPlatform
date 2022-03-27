@@ -8,6 +8,8 @@
 #include "DMA_Driver/DMA_Driver.h"
 #include "xil_io.h"
 #include "utils.h"
+#include <FreeRTOS.h>
+#include <task.h>
 
 
 /**
@@ -103,4 +105,24 @@ void XAxiDma_MM2SIntrHandler(void *param) {
                 xil_printf("%s\r\n", str[i]);
         }
     }
+}
+
+int DMA_send_package(XAxiDma_BdRing *RingPtr, UINTPTR data, size_t size) {
+    XAxiDma_Bd *BdPtr;
+    CHECK_STATUS_RET(XAxiDma_BdRingAlloc(RingPtr, 1, &BdPtr));
+    CHECK_STATUS_RET(XAxiDma_BdSetBufAddr(BdPtr, data));
+    CHECK_STATUS_RET(XAxiDma_BdSetLength(BdPtr, size, RingPtr->MaxTransferLen));
+    XAxiDma_BdSetCtrl(BdPtr, XAXIDMA_BD_CTRL_ALL_MASK);
+    XAxiDma_BdWrite(BdPtr, XAXIDMA_BD_NDESC_OFFSET, BdPtr);
+    XAxiDma_BdSetId(BdPtr, data);
+
+    CHECK_STATUS_RET(XAxiDma_BdRingToHw(RingPtr, 1, BdPtr));
+
+    CHECK_STATUS_RET(XAxiDma_BdRingStart(RingPtr));
+    while (XAxiDma_BdRingBusy(RingPtr))
+        vTaskDelay(1);
+
+    CHECK_STATUS_RET(XAxiDma_BdRingFromHw(RingPtr, XAXIDMA_ALL_BDS, &BdPtr));
+    CHECK_STATUS_RET(XAxiDma_BdRingFree(RingPtr, 1, BdPtr));
+    return XST_SUCCESS;
 }
