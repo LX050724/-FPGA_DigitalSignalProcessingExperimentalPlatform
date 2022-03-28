@@ -142,7 +142,7 @@ static void wait_timer_cb(lv_timer_t *timer) {
     if (ProgramFLASH_isfinished()) {
         lv_msgbox_close(timer->user_data);
         lv_timer_del(timer);
-        InfoMessageBox("完成", "FLASH写入完成", "关闭");
+        InfoMessageBox("完成", "关闭", "FLASH写入完成");
     }
 }
 
@@ -150,7 +150,7 @@ static void flash_MsgBox_event_cb(uint16_t index) {
     if (index != 0) return;
     if (ProgramFLASH("0:/BOOT.BIN") != XST_SUCCESS) {
         LV_LOG_ERROR("FLASH编程错误");
-        InfoMessageBox("错误", "创建FLASH编程任务失败", "关闭");
+        InfoMessageBox("错误", "关闭", "创建FLASH编程任务失败");
     } else {
         const char *buttons[] = {"", "", ""};
         lv_obj_t *messagebox = lv_msgbox_create(NULL, "请稍等", "正在写入FLASH . . .", buttons, false);
@@ -176,7 +176,7 @@ static void flash_btn_event_cb(lv_event_t *e) {
                 "    是否开始刷入固件?",
                 "是", "否", flash_MsgBox_event_cb);
     } else {
-        InfoMessageBox("错误", "未挂载SD卡, 无法更新FLASH固件", "取消");
+        InfoMessageBox("错误", "取消", "未挂载SD卡, 无法更新FLASH固件");
     }
 }
 

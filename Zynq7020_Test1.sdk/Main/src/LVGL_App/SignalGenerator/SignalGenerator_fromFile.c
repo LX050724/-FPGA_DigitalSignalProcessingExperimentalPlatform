@@ -15,10 +15,6 @@ static lv_obj_t *field_list_dropdown;
 static lv_obj_t *file_type_label;
 static lv_obj_t *start_btn;
 
-//static char *current_dir;
-//static size_t path_len;
-//static char *selected_file;
-
 static void start_btn_click_cb(lv_event_t *e);
 
 static void file_table_path_change_cb(lv_obj_t *obj, const char *path);
@@ -33,7 +29,7 @@ void fromFile_create(lv_obj_t *parent) {
     lv_table_set_row_cnt(file_table, 1);
     lv_table_set_col_cnt(file_table, 1);
     lv_obj_set_width(file_table, LV_HOR_RES * 0.3);
-    lv_obj_set_height(file_table, LV_VER_RES * 0.65);
+    lv_obj_set_height(file_table, LV_VER_RES * 0.7);
     lv_table_set_col_width(file_table, 0, LV_HOR_RES * 0.28);
     lv_obj_align_to(file_table, path_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
     lv_file_select_box_set_click_callback(file_table, file_table_click_cb);
@@ -132,6 +128,6 @@ static void start_btn_click_cb(lv_event_t *e) {
         DDS_wav_from_data(p, len);
         lv_mem_free(p);
     } else {
-        InfoMessageBox("错误", FileDecoder_status_string(status), "关闭");
+        InfoMessageBox("错误", "关闭", FileDecoder_status_string(status));
     }
 }

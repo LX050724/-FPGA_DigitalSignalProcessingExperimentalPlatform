@@ -22,12 +22,6 @@
 int DMA_Init(XAxiDma *dma, uint32_t DeviceId) {
     XAxiDma_Config *config = XAxiDma_LookupConfig(DeviceId);
     CHECK_STATUS_RET(XAxiDma_CfgInitialize(dma, config));
-
-    if (!XAxiDma_HasSg(dma)) {
-        xil_printf("Device configured as Simple mode \r\n");
-        return XST_FAILURE;
-    }
-
     return XST_SUCCESS;
 }
 
@@ -107,22 +101,13 @@ void XAxiDma_MM2SIntrHandler(void *param) {
     }
 }
 
-int DMA_send_package(XAxiDma_BdRing *RingPtr, UINTPTR data, size_t size) {
-    XAxiDma_Bd *BdPtr;
-    CHECK_STATUS_RET(XAxiDma_BdRingAlloc(RingPtr, 1, &BdPtr));
-    CHECK_STATUS_RET(XAxiDma_BdSetBufAddr(BdPtr, data));
-    CHECK_STATUS_RET(XAxiDma_BdSetLength(BdPtr, size, RingPtr->MaxTransferLen));
-    XAxiDma_BdSetCtrl(BdPtr, XAXIDMA_BD_CTRL_ALL_MASK);
-    XAxiDma_BdWrite(BdPtr, XAXIDMA_BD_NDESC_OFFSET, BdPtr);
-    XAxiDma_BdSetId(BdPtr, data);
-
-    CHECK_STATUS_RET(XAxiDma_BdRingToHw(RingPtr, 1, BdPtr));
-
-    CHECK_STATUS_RET(XAxiDma_BdRingStart(RingPtr));
-    while (XAxiDma_BdRingBusy(RingPtr))
-        vTaskDelay(1);
-
-    CHECK_STATUS_RET(XAxiDma_BdRingFromHw(RingPtr, XAXIDMA_ALL_BDS, &BdPtr));
-    CHECK_STATUS_RET(XAxiDma_BdRingFree(RingPtr, 1, BdPtr));
-    return XST_SUCCESS;
+int DMA_send_package(XAxiDma *InstancePtr, UINTPTR data, size_t size) {
+    int status = XST_SUCCESS;
+    vPortEnterCritical();
+    Xil_DCacheFlushRange(data, size);
+    status = XAxiDma_SimpleTransfer(InstancePtr, data, size, XAXIDMA_DMA_TO_DEVICE);
+    // TODO 需要补充超时保护
+    while (XAxiDma_Busy(InstancePtr, XAXIDMA_DMA_TO_DEVICE));
+    vPortExitCritical();
+    return status;
 }

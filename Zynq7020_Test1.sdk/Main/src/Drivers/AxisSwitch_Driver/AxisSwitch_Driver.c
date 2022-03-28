@@ -17,7 +17,7 @@ int AxisSwitch_init() {
 
 int AxisSwitch_switch(AxisSwitch_Channel channel) {
     XAxisScr_MiPortDisableAll(&xAxisSwitch);
-    XAxisScr_MiPortEnable(&xAxisSwitch, 0, channel);
-    return XAxisScr_IsMiPortEnabled(&xAxisSwitch, 0, channel);
+    XAxisScr_MiPortEnable(&xAxisSwitch, channel, 0);
+    return XAxisScr_IsMiPortEnabled(&xAxisSwitch, channel, 0) ? XST_SUCCESS : XST_FAILURE;
 }
 

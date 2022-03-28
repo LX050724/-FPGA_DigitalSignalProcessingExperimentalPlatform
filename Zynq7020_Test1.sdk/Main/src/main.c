@@ -83,7 +83,7 @@
 
 XIicPs iic0, iic1;
 XGpioPs gpio;
-XAxiDma dma0, dma1;
+XAxiDma dma0, dma1, dma2;
 XAxis_Switch axisSwitch;
 XQspiPs QspiInstance;
 XAdcPs xAdcPs;
@@ -171,7 +171,10 @@ static void DefaultTask(void *pvParameters) {
     CHECK_STATUS(DMA_SetTxRing(&dma1, DMA1_TxBd, sizeof(DMA1_TxBd)));
     CHECK_STATUS(DMA_SetRxRing(&dma1, DMA1_RxBd, sizeof(DMA1_RxBd)));
     CHECK_STATUS(FFT_init_dma_channel(&dma1));
-    CHECK_STATUS(FIR_init_dma_channel(&dma1));
+
+
+    CHECK_STATUS(DMA_Init(&dma2, XPAR_AXIDMA_2_DEVICE_ID));
+    CHECK_STATUS(FIR_init_dma_channel(&dma2));
 
     struct tm t = {0};
     DS1337_GetTime(&iic1, &t);

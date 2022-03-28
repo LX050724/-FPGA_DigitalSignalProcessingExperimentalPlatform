@@ -5,6 +5,6 @@
 
 void QuestMessageBox(const char *title, const char *text, const char *YesText, const char *NoText,
                      void (*callback)(uint16_t));
-void InfoMessageBox(const char *title, const char *text, const char *YesText);
+void InfoMessageBox(const char *title, const char *YesText, const char *fmt, ...);
 
 #endif

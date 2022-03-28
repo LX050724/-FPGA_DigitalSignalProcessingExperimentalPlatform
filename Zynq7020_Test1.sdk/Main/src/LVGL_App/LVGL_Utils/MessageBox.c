@@ -1,6 +1,7 @@
 #include "MessageBox.h"
 
 #include "lvgl.h"
+#include <stdarg.h>
 
 static uint8_t style_init = 0;
 static lv_style_t style_title;
@@ -45,7 +46,13 @@ void QuestMessageBox(const char *title, const char *text, const char *YesText, c
     lv_obj_center(mbox1);
 }
 
-void InfoMessageBox(const char *title, const char *text, const char *YesText) {
+void InfoMessageBox(const char *title, const char *YesText, const char *fmt, ...) {
+    char buf[128] = {0};
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+
     static const char *btns[3] = {NULL, "", ""};
     if (!style_init) {
         lv_style_init(&style_title);
@@ -54,7 +61,7 @@ void InfoMessageBox(const char *title, const char *text, const char *YesText) {
         style_init = 1;
     }
     btns[0] = YesText;
-    lv_obj_t *mbox1 = lv_msgbox_create(NULL, title, text, btns, false);
+    lv_obj_t *mbox1 = lv_msgbox_create(NULL, title, buf, btns, false);
     lv_obj_add_style(lv_msgbox_get_title(mbox1), &style_title, 0);
     lv_obj_add_event_cb(mbox1, InfoEvent_cb, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_set_width(mbox1, LV_HOR_RES / 2);

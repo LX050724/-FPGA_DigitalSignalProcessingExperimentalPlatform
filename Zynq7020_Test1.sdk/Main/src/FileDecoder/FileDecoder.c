@@ -366,12 +366,12 @@ FDStatus FileDecoder_get_json_field(const char *filename, char ***p, size_t *len
 }
 
 FDStatus FileDecoder_open(const char *filename, const char *field, FDType *type, int8_t **p, size_t *len) {
-    if (p == NULL || filename == NULL || len == NULL || type == NULL)
+    if (p == NULL || filename == NULL || len == NULL)
         return FDStatus_null;
     FDStatus status;
-    const char *filename_GBK = UTF8_TO_GBK(filename);
-    *type = FileDecoder_get_file_type(filename_GBK);
-    switch (*type) {
+    char *filename_GBK = UTF8_TO_GBK(filename);
+    FDType file_type = FileDecoder_get_file_type(filename_GBK);
+    switch (file_type) {
         case FDType_csv:
             status = FileDecoder_decode_csv(filename_GBK, p, len);
             break;
@@ -389,5 +389,6 @@ FDStatus FileDecoder_open(const char *filename, const char *field, FDType *type,
             status = FDStatus_invalid_file;
     }
     os_free(filename_GBK);
+    if (type) *type = file_type;
     return status;
 }

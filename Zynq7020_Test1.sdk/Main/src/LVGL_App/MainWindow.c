@@ -10,6 +10,7 @@
 #include "Setup/Setup.h"
 #include "SpectrumAnalyzer/SpectrumAnalyzer.h"
 #include "Oscilloscope/Oscilloscope.h"
+#include "DigitalFilter/DigitalFilter.h"
 
 static lv_obj_t *tv;
 
@@ -78,6 +79,7 @@ void mainWindowInit() {
 //        lv_page_set_scroll_propagation(tabs[i], false);
     Oscilloscope_create(tabs[0]);
     SpectrumAnalyzer_create(tabs[1]);
+    DigitalFilter_create(tabs[3]);
     SignalGenerator_create(tabs[4]);
     Setup_create(tabs[5]);
     xSemaphoreGive(LVGL_Mutex);

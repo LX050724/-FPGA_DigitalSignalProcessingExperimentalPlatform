@@ -15,6 +15,6 @@ int FIR_init_dma_channel(XAxiDma *interface);
  * @param coe 滤波器系数，必须为长度65的奇对称系数
  * @return
  */
-int FIR_reload_coe(uint16_t *coe);
+int FIR_reload_coe(int16_t *coe);
 
 #endif //ZYNQ7020_FIR_CONTROLLER_H
