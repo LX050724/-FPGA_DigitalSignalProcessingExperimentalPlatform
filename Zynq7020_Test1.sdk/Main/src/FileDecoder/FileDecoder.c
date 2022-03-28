@@ -2,6 +2,8 @@
 // Created by yao on 2022/2/1.
 //
 
+#include <string.h>
+#include <stdlib.h>
 #include "FileDecoder.h"
 #include "math.h"
 #include "Fatfs_init/Fatfs_Driver.h"
@@ -15,6 +17,7 @@ const char *FileDecoder_status_string(FDStatus status) {
             "ok",
             "null",
             "file read error",
+            "file too lager",
             "out of memory",
             "invalid file",
             "invalid path",
@@ -67,11 +70,11 @@ static uint64_t FileDecoder_parse_number_16(const char *str, int len) {
     for (int i = 0; i < len; i++) {
         if (str[i] == ' ') continue;
         if (str[i] >= '0' && str[i] <= '9') {
-            number = (number << 4) | (str[i] - '0') & 0x0f;
+            number = (number << 4) | ((str[i] - '0') & 0x0f);
         } else if (str[i] >= 'A' && str[i] <= 'F') {
-            number = (number << 4) | (str[i] - 'A' + 0x0a) & 0x0f;
+            number = (number << 4) | ((str[i] - 'A' + 0x0a) & 0x0f);
         } else if (str[i] >= 'a' && str[i] <= 'f') {
-            number = (number << 4) | (str[i] - 'a' + 0x0a) & 0x0f;
+            number = (number << 4) | ((str[i] - 'a' + 0x0a) & 0x0f);
         } else return 0;
     }
     return number;
@@ -91,7 +94,7 @@ static uint64_t FileDecoder_parse_number_2(const char *str, int len) {
 FDType FileDecoder_get_file_type(const char *filename) {
     if (filename == NULL) return FDType_unknown;
     size_t len = strlen(filename);
-    char suffix[10] = { 0 };
+    char suffix[10] = {0};
     for (size_t i = len - 1; i >= 0; i--) {
         if (filename[i] == '.') {
             strcpy(suffix, filename + i + 1);
@@ -129,7 +132,12 @@ static FDStatus FileDecoder_decode_bin(const char *filename, int8_t **p, size_t 
 
     FIL file;
     if (f_open(&file, filename, FA_READ) != FR_OK) return FDStatus_invalid_path;
-    
+
+    if (f_size(&file) > FD_FILE_SIZE_MAX) {
+        f_close(&file);
+        return FDStatus_file_too_lager_error;
+    }
+
     long size = f_size(&file);
     buf = os_malloc(size);
     if (buf == NULL) return FDStatus_out_of_memory;
@@ -317,7 +325,7 @@ static FDStatus FileDecoder_decode_coe(const char *filename, int16_t **p, size_t
     return status;
 }
 
-FDStatus FileDecoder_get_json_field(const char *filename, const char ***p, size_t *len) {
+FDStatus FileDecoder_get_json_field(const char *filename, char ***p, size_t *len) {
     if (len == NULL || p == NULL)
         return FDStatus_null;
     FDStatus status;
@@ -326,7 +334,7 @@ FDStatus FileDecoder_get_json_field(const char *filename, const char ***p, size_
 
     size_t file_size;
     char *file;
-    const char* filename_GBK = UTF8_TO_GBK(filename);
+    char *filename_GBK = UTF8_TO_GBK(filename);
     status = FileDecoder_decode_bin(filename_GBK, (int8_t **) &file, &file_size);
     os_free(filename_GBK);
     if (status != FDStatus_ok) return status;
@@ -361,7 +369,7 @@ FDStatus FileDecoder_open(const char *filename, const char *field, FDType *type,
     if (p == NULL || filename == NULL || len == NULL || type == NULL)
         return FDStatus_null;
     FDStatus status;
-    const char* filename_GBK = UTF8_TO_GBK(filename);
+    const char *filename_GBK = UTF8_TO_GBK(filename);
     *type = FileDecoder_get_file_type(filename_GBK);
     switch (*type) {
         case FDType_csv:

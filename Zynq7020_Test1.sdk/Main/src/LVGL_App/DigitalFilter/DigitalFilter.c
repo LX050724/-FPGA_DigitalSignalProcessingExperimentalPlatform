@@ -3,3 +3,10 @@
 //
 
 #include "DigitalFilter.h"
+
+
+
+
+void DigitalFilter_create(lv_obj_t *parent) {
+
+}

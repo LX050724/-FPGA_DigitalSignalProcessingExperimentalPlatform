@@ -8,10 +8,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define FD_FILE_SIZE_MAX (0x00400000)
+
 typedef enum FDStatus {
     FDStatus_ok,
     FDStatus_null,
     FDStatus_file_read_error,
+    FDStatus_file_too_lager_error,
     FDStatus_out_of_memory,
     FDStatus_invalid_file,
     FDStatus_invalid_path,
@@ -61,7 +64,7 @@ FDType FileDecoder_get_file_type(const char *filename);
  * @param len [out] 字段个数
  * @return
  */
-FDStatus FileDecoder_get_json_field(const char *filename, const char ***p, size_t *len);
+FDStatus FileDecoder_get_json_field(const char *filename, char ***p, size_t *len);
 
 /**
  * 自动判断类型并读取文件

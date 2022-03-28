@@ -5,4 +5,8 @@
 #ifndef ZYNQ7020_DIGITALFILTER_H
 #define ZYNQ7020_DIGITALFILTER_H
 
+#include "lvgl.h"
+
+void DigitalFilter_create(lv_obj_t *parent);
+
 #endif //ZYNQ7020_DIGITALFILTER_H
