@@ -3,7 +3,7 @@
 //
 
 #include "DAC_Controller.h"
-#include "SignalProcessingUnit_Controller.h"
+#include "SPU_Controller.h"
 #include "utils.h"
 
 static XAxiDma_BdRing *TxRingPtr;
@@ -14,7 +14,7 @@ int DAC_init_dma_channel(XAxiDma *interface) {
         return XST_NOT_SGDMA;
     }
 
-    SignalProcessingUnit_set_DAC_Offset(127);
+    SPU_SetDacOffset(127);
 
     XAxiDma_SelectCyclicMode(interface, XAXIDMA_DMA_TO_DEVICE, TRUE);
     TxRingPtr = XAxiDma_GetTxRing(interface);

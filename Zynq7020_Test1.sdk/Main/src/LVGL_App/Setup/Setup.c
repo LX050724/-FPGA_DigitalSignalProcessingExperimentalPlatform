@@ -10,7 +10,7 @@
 #include "lwip/netif.h"
 #include "LwIP_init/LwIP_init.h"
 #include "XADC_Driver/XADC_Driver.h"
-#include "Controller/SignalProcessingUnit_Controller.h"
+#include "Controller/SPU_Controller.h"
 #include "main.h"
 
 static lv_style_t style_title, style_sec_title, style_content;
@@ -316,5 +316,5 @@ static void refresh_timer_cb(lv_timer_t *timer) {
 static void signal_dropdown_cb(lv_event_t *event) {
     lv_obj_t *dropdown = lv_event_get_target(event);
     Channel_Index channelIndex = (Channel_Index) lv_event_get_user_data(event);
-    SignalProcessingUnit_switch_axis(channelIndex, lv_dropdown_get_selected(dropdown));
+    SPU_SwitchChannelSource(channelIndex, lv_dropdown_get_selected(dropdown));
 }

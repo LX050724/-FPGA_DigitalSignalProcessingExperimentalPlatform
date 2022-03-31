@@ -4,7 +4,7 @@
 
 #include "FFT_Controller.h"
 #include "xaxidma.h"
-#include "SignalProcessingUnit_Controller.h"
+#include "SPU_Controller.h"
 #include "utils.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -41,7 +41,7 @@ int FFT_init_dma_channel(XAxiDma *interface) {
     CHECK_STATUS_RET(XAxiDma_BdRingStart(RingPtr));
 
     /* 向FFT Packager发送启动信号 */
-    SignalProcessingUnit_send_pulse(FFT_PackPulse);
+    SPU_SendPulse(FFT_PackPulse);
 
     return XST_SUCCESS;
 }
@@ -63,7 +63,7 @@ int FFT_get_data() {
     }
 
     /* 向FFT Packager发送启动信号 */
-    SignalProcessingUnit_send_pulse(FFT_PackPulse);
+    SPU_SendPulse(FFT_PackPulse);
 
     return status;
 }

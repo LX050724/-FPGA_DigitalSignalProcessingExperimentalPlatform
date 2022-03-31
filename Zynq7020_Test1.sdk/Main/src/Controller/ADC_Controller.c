@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "ADC_Controller.h"
 #include "xaxidma.h"
-#include "SignalProcessingUnit_Controller.h"
+#include "SPU_Controller.h"
 #include "utils.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -119,7 +119,7 @@ int ADC_get_data(bool *triggered) {
     if (triggered) *triggered = t;
 
     /* 向ADC Packager发送启动信号 */
-    SignalProcessingUnit_send_pulse(ADC_PackPulse);
+    SPU_SendPulse(ADC_PackPulse);
 
     return status;
 }
@@ -180,8 +180,8 @@ float ADC_get_rms_cycle() {
 }
 
 static void ADC_calibration() {
-    SignalProcessingUnit_set_ADC_Offset(0);
-    SignalProcessingUnit_send_pulse(ADC_PackPulse);
+    SPU_SetAdcOffset(0);
+    SPU_SendPulse(ADC_PackPulse);
     vTaskDelay(1);
     ADC_get_data(NULL);
     uint64_t sum = 0;
@@ -190,9 +190,9 @@ static void ADC_calibration() {
     }
     int8_t offset = sum / 8192;
     if (abs(offset - 128) < 10)
-        SignalProcessingUnit_set_ADC_Offset(sum / 8192);
+        SPU_SetAdcOffset(sum / 8192);
     else
-        SignalProcessingUnit_set_ADC_Offset(127);
+        SPU_SetAdcOffset(127);
 }
 
 void ADC_set_trigger_level(int16_t level) {

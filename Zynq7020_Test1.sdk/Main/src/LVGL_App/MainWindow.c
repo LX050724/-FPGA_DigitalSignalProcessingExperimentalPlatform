@@ -12,7 +12,7 @@
 #include "Oscilloscope/Oscilloscope.h"
 #include "DigitalFilter/DigitalFilter.h"
 
-static lv_obj_t *tv;
+lv_obj_t *tabview;
 
 static lv_style_t style_text_muted;
 static lv_style_t style_title;
@@ -47,8 +47,8 @@ void mainWindowInit() {
     lv_style_set_radius(&style_bullet, LV_RADIUS_CIRCLE);
 
     /* 创建顶部Tab */
-    tv = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, 70);
-    lv_obj_t *tab_btns = lv_tabview_get_tab_btns(tv);
+    tabview = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, 70);
+    lv_obj_t *tab_btns = lv_tabview_get_tab_btns(tabview);
     /* 设置左半空白 */
     lv_obj_set_style_pad_left(tab_btns, LV_HOR_RES * 0.4, 0);
 
@@ -67,12 +67,12 @@ void mainWindowInit() {
 
     /* 创建Tab标签 */
     lv_obj_t *tabs[] = {
-            lv_tabview_add_tab(tv, "示波器"),
-            lv_tabview_add_tab(tv, "频谱仪"),
-            lv_tabview_add_tab(tv, "幅频响应测试"),
-            lv_tabview_add_tab(tv, "数字滤波器"),
-            lv_tabview_add_tab(tv, "信号发生器"),
-            lv_tabview_add_tab(tv, "设置"),
+            lv_tabview_add_tab(tabview, "示波器"),
+            lv_tabview_add_tab(tabview, "频谱仪"),
+            lv_tabview_add_tab(tabview, "幅频响应测试"),
+            lv_tabview_add_tab(tabview, "数字滤波器"),
+            lv_tabview_add_tab(tabview, "信号发生器"),
+            lv_tabview_add_tab(tabview, "设置"),
     };
 
 //    for (int i = 0; i < sizeof(tabs) / sizeof(lv_obj_t *); i++)

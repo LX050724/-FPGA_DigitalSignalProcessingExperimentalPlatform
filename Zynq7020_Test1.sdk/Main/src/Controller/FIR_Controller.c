@@ -4,7 +4,7 @@
 
 #include "FIR_Controller.h"
 #include "utils.h"
-#include "SignalProcessingUnit_Controller.h"
+#include "SPU_Controller.h"
 #include "DMA_Driver/DMA_Driver.h"
 
 static XAxiDma *DmaInterface;
@@ -21,9 +21,9 @@ int FIR_reload_coe(int16_t *coe) {
         if (coe[i] != coe[64 - i])
             return XST_INVALID_PARAM;
     }
-    SignalProcessingUnit_switch_axis(CHANNEL_INDEX_FIR, FIR_RELOAD);
+    SPU_SwitchChannelSource(CHANNEL_INDEX_FIR, FIR_RELOAD);
     CHECK_STATUS_RET(DMA_send_package(DmaInterface, (UINTPTR) coe, sizeof(uint16_t) * 33));
-    SignalProcessingUnit_switch_axis(CHANNEL_INDEX_FIR, FIR_CONFIG);
+    SPU_SwitchChannelSource(CHANNEL_INDEX_FIR, FIR_CONFIG);
     CHECK_STATUS_RET(DMA_send_package(DmaInterface, (UINTPTR) &fir_config, 1));
     return XST_SUCCESS;
 }
