@@ -10,6 +10,7 @@
 #include "lwip/netif.h"
 #include "LwIP_init/LwIP_init.h"
 #include "XADC_Driver/XADC_Driver.h"
+#include "Controller/SignalProcessingUnit_Controller.h"
 #include "main.h"
 
 static lv_style_t style_title, style_sec_title, style_content;
@@ -20,11 +21,14 @@ static lv_obj_t *time_info;
 static lv_obj_t *net_info;
 static lv_obj_t *sensor_info;
 
+
 static void refresh_timer_cb(lv_timer_t *timer);
 static void calibration_time_btn_cb(lv_event_t *e);
 static void wait_timer_cb(lv_timer_t *timer);
 static void flash_MsgBox_event_cb(uint16_t index);
 static void flash_btn_event_cb(lv_event_t *e);
+
+static void signal_dropdown_cb(lv_event_t *event);
 
 void Setup_create(lv_obj_t *parent) {
     const char *boot_str[] = {
@@ -43,10 +47,58 @@ void Setup_create(lv_obj_t *parent) {
     lv_style_init(&style_content);
     lv_style_set_pad_left(&style_content, 30);
 
+    lv_obj_t *signal_select_title = lv_label_create(parent);
+    lv_obj_add_style(signal_select_title, &style_title, 0);
+    lv_label_set_text_static(signal_select_title, "信号源选择");
+
+    /* 信号源选择容器 */
+    static lv_coord_t col_dsc[] = {140, 140, 140, LV_GRID_TEMPLATE_LAST};
+    static lv_coord_t row_dsc[] = {50, 50, LV_GRID_TEMPLATE_LAST};
+    lv_obj_t *signal_select_cont = lv_obj_create(parent);
+    lv_obj_set_style_grid_column_dsc_array(signal_select_cont, col_dsc, 0);
+    lv_obj_set_style_grid_row_dsc_array(signal_select_cont, row_dsc, 0);
+    lv_obj_set_size(signal_select_cont, LV_HOR_RES * 0.5, LV_VER_RES * 0.3);
+    lv_obj_set_layout(signal_select_cont, LV_LAYOUT_GRID);
+    lv_obj_add_style(signal_select_cont, &style_content, 0);
+    lv_obj_align_to(signal_select_cont, signal_select_title, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 10);
+
+
+    lv_obj_t *scope_drop_label = lv_label_create(signal_select_cont);
+    lv_label_set_text_static(scope_drop_label, "示波器信号源:");
+    lv_obj_set_grid_cell(scope_drop_label, LV_GRID_ALIGN_STRETCH, 0, 1,
+                         LV_GRID_ALIGN_STRETCH, 0, 1);
+    lv_obj_t *scope_drop = lv_dropdown_create(signal_select_cont);
+    lv_dropdown_set_options_static(scope_drop, "ADC\nFIR");
+    lv_obj_add_event_cb(scope_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *)CHANNEL_INDEX_SCOPE);
+    lv_obj_set_grid_cell(scope_drop, LV_GRID_ALIGN_STRETCH, 0, 1,
+                         LV_GRID_ALIGN_STRETCH, 1, 1);
+
+    lv_obj_t *fft_drop_label = lv_label_create(signal_select_cont);
+    lv_label_set_text_static(fft_drop_label, "频谱仪信号源:");
+    lv_obj_set_grid_cell(fft_drop_label, LV_GRID_ALIGN_STRETCH, 1, 1,
+                         LV_GRID_ALIGN_STRETCH, 0, 1);
+    lv_obj_t *fft_drop = lv_dropdown_create(signal_select_cont);
+    lv_dropdown_set_options_static(fft_drop, "ADC\nFIR");
+    lv_obj_add_event_cb(fft_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *)CHANNEL_INDEX_FFT);
+    lv_obj_set_grid_cell(fft_drop, LV_GRID_ALIGN_STRETCH, 1, 1,
+                         LV_GRID_ALIGN_STRETCH, 1, 1);
+
+    lv_obj_t *dac_drop_label = lv_label_create(signal_select_cont);
+    lv_label_set_text_static(dac_drop_label, "DAC信号源:");
+    lv_obj_set_grid_cell(dac_drop_label, LV_GRID_ALIGN_STRETCH, 2, 1,
+                         LV_GRID_ALIGN_STRETCH, 0, 1);
+    lv_obj_t *dac_drop = lv_dropdown_create(signal_select_cont);
+    lv_dropdown_set_options_static(dac_drop, "DDS\nFIR");
+    lv_obj_add_event_cb(dac_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *)CHANNEL_INDEX_DAC);
+    lv_obj_set_grid_cell(dac_drop, LV_GRID_ALIGN_STRETCH, 2, 1,
+                         LV_GRID_ALIGN_STRETCH, 1, 1);
+    /* 信号源选择容器 END */
+
     lv_obj_t *fw_title = lv_label_create(parent);
     lv_obj_add_style(fw_title, &style_title, 0);
     lv_label_set_text_static(fw_title, "固件信息");
     lv_obj_t *fw_info = lv_label_create(parent);
+    lv_obj_align_to(fw_title, signal_select_cont, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 20);
 
     lv_label_set_text_fmt(fw_info,
                           "FreeRTOS版本: V10.0.0\n"
@@ -259,4 +311,10 @@ static void refresh_timer_cb(lv_timer_t *timer) {
     lv_table_set_cell_value_fmt(sensor_info, 7, 1, "%0d.%03dV", PRINT_FLOAT(data.VCCPDRO_Current));
     lv_table_set_cell_value_fmt(sensor_info, 7, 2, "%0d.%03dV", PRINT_FLOAT(data.VCCPDRO_Max));
     lv_table_set_cell_value_fmt(sensor_info, 7, 3, "%0d.%03dV", PRINT_FLOAT(data.VCCPDRO_Min));
+}
+
+static void signal_dropdown_cb(lv_event_t *event) {
+    lv_obj_t *dropdown = lv_event_get_target(event);
+    Channel_Index channelIndex = (Channel_Index) lv_event_get_user_data(event);
+    SignalProcessingUnit_switch_axis(channelIndex, lv_dropdown_get_selected(dropdown));
 }

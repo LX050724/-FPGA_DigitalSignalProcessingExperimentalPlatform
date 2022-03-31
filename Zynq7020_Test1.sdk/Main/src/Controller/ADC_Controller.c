@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "ADC_Controller.h"
 #include "xaxidma.h"
-#include "AXI4_IO.h"
+#include "SignalProcessingUnit_Controller.h"
 #include "utils.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -119,8 +119,8 @@ int ADC_get_data(bool *triggered) {
     if (triggered) *triggered = t;
 
     /* 向ADC Packager发送启动信号 */
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG3_OFFSET, 2);
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG3_OFFSET, 0);
+    SignalProcessingUnit_send_pulse(ADC_PackPulse);
+
     return status;
 }
 
@@ -180,9 +180,8 @@ float ADC_get_rms_cycle() {
 }
 
 static void ADC_calibration() {
-    ADC_set_offset(0);
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG3_OFFSET, 2);
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG3_OFFSET, 0);
+    SignalProcessingUnit_set_ADC_Offset(0);
+    SignalProcessingUnit_send_pulse(ADC_PackPulse);
     vTaskDelay(1);
     ADC_get_data(NULL);
     uint64_t sum = 0;
@@ -191,13 +190,9 @@ static void ADC_calibration() {
     }
     int8_t offset = sum / 8192;
     if (abs(offset - 128) < 10)
-        ADC_set_offset(sum / 8192);
+        SignalProcessingUnit_set_ADC_Offset(sum / 8192);
     else
-        ADC_set_offset(128);
-}
-
-void ADC_set_offset(int8_t offset) {
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG0_OFFSET, (uint32_t) offset);
+        SignalProcessingUnit_set_ADC_Offset(127);
 }
 
 void ADC_set_trigger_level(int16_t level) {
@@ -214,10 +209,6 @@ void ADC_set_trigger_condition(trigger_condition_e condition) {
 
 void ADC_set_trigger_position(int16_t position) {
     trigger_position = position;
-}
-
-int8_t ADC_get_offset() {
-    return AXI4_IO_mReadReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG0_OFFSET);
 }
 
 int16_t ADC_get_trigger_level() {

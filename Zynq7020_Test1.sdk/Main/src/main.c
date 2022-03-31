@@ -67,7 +67,6 @@
 #include "utils.h"
 #include "xil_printf.h"
 #include "AXI4_IO.h"
-#include "xaxis_switch.h"
 #include "Controller/FFT_Controller.h"
 #include "Controller/ADC_Controller.h"
 #include "Controller/DAC_Controller.h"
@@ -75,7 +74,6 @@
 #include "cJSON.h"
 #include "AmplitudeResponse/AmplitudeResponse.h"
 #include "xtime_l.h"
-#include "AxisSwitch_Driver/AxisSwitch_Driver.h"
 #include "Controller/FIR_Controller.h"
 
 #include <math.h>
@@ -84,7 +82,6 @@
 XIicPs iic0, iic1;
 XGpioPs gpio;
 XAxiDma dma0, dma1, dma2;
-XAxis_Switch axisSwitch;
 XQspiPs QspiInstance;
 XAdcPs xAdcPs;
 
@@ -95,9 +92,6 @@ static XAxiDma_Bd DMA1_RxBd[64] __attribute__((aligned(64)));
 
 static TaskHandle_t DefaultTaskHandle;
 static void DefaultTask(void *pvParameters);
-
-static TaskHandle_t MonitorTaskHandle;
-static void MonitorTask(void *pvParameters);
 
 int main() {
     init_platform();
@@ -141,11 +135,6 @@ static void DefaultTask(void *pvParameters) {
             .malloc_fn = os_malloc,
     };
     cJSON_InitHooks(&hooks);
-
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG0_OFFSET, 128);
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG1_OFFSET, 128);
-
-    CHECK_STATUS(AxisSwitch_init());
 
     CHECK_STATUS(XADC_Init(&xAdcPs, XPAR_XADCPS_0_DEVICE_ID));
 

@@ -8,6 +8,7 @@
 #include "DMA_Driver/DMA_Driver.h"
 #include "xil_io.h"
 #include "utils.h"
+#include "Timer_Driver/Timer_Driver.h"
 #include <FreeRTOS.h>
 #include <task.h>
 
@@ -106,8 +107,15 @@ int DMA_send_package(XAxiDma *InstancePtr, UINTPTR data, size_t size) {
     vPortEnterCritical();
     Xil_DCacheFlushRange(data, size);
     status = XAxiDma_SimpleTransfer(InstancePtr, data, size, XAXIDMA_DMA_TO_DEVICE);
-    // TODO 需要补充超时保护
-    while (XAxiDma_Busy(InstancePtr, XAXIDMA_DMA_TO_DEVICE));
+
+    int start_time_ms = getTime_millis();
+    while (XAxiDma_Busy(InstancePtr, XAXIDMA_DMA_TO_DEVICE)) {
+        if (getTime_millis() - start_time_ms > 5) {
+            vPortExitCritical();
+            return XST_FAILURE;
+        }
+    }
+
     vPortExitCritical();
     return status;
 }

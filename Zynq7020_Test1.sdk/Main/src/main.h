@@ -8,14 +8,12 @@
 #include "xiicps.h"
 #include "xgpiops.h"
 #include "xaxidma.h"
-#include "xaxis_switch.h"
 #include "xqspips.h"
 #include "xadcps.h"
 
 extern XIicPs iic0, iic1;
 extern XGpioPs gpio;
-extern XAxiDma dma0, dma1;
-extern XAxis_Switch axisSwitch;
+extern XAxiDma dma0, dma1, dma2;
 extern XQspiPs QspiInstance;
 extern XAdcPs xAdcPs;
 

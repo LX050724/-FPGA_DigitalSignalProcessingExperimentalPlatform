@@ -16,10 +16,6 @@ set(XIL_FILES
         ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma_g.c
         ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma_selftest.c
         ps7_cortexa9_0/libsrc/axidma_v9_8/src/xaxidma_sinit.c
-        ps7_cortexa9_0/libsrc/axis_switch_v1_2/src/xaxis_switch.c
-        ps7_cortexa9_0/libsrc/axis_switch_v1_2/src/xaxis_switch_g.c
-        ps7_cortexa9_0/libsrc/axis_switch_v1_2/src/xaxis_switch_selftest.c
-        ps7_cortexa9_0/libsrc/axis_switch_v1_2/src/xaxis_switch_sinit.c
         ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma.c
         ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma_channel.c
         ps7_cortexa9_0/libsrc/axivdma_v6_6/src/xaxivdma_g.c

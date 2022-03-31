@@ -11,9 +11,9 @@
 #define DDS_RAM_LEN 0x400000
 #define DDS_RAM_ATTRIBUTE __attribute__((section(".DDS_RAM")))
 
-static inline double inRange(double min, double v, double max) {
-    return v >= max ? max :
-           v <= min ? min : v;
+static inline double inRange(double _min, double _v, double _max) {
+    return _v >= _max ? _max :
+           _v <= _min ? _min : _v;
 }
 
 

@@ -15,8 +15,6 @@ typedef enum {
 
 int ADC_init_dma_channel(XAxiDma *interface);
 int ADC_get_data(bool *triggered);
-void ADC_set_offset(int8_t offset);
-int8_t ADC_get_offset();
 
 void ADC_set_trigger_level(int16_t level);
 void ADC_set_trigger_hysteresis(int16_t hysteresis);

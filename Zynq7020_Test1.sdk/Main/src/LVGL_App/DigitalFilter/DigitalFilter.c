@@ -10,6 +10,7 @@
 #include "AmplitudeResponse/AmplitudeResponse.h"
 #include "LVGL_Utils/MessageBox.h"
 #include "Controller/FIR_Controller.h"
+#include "Controller/SignalProcessingUnit_Controller.h"
 
 static lv_obj_t *file_table;
 static lv_obj_t *path_label;
@@ -132,6 +133,7 @@ void reload_btn_cb(lv_event_t *event) {
         if (ret != XST_SUCCESS) {
             InfoMessageBox("错误", "关闭", "重载FIR系数时发生错误 code:%d", ret);
         } else {
+            SignalProcessingUnit_set_FIR_shift(14);
             InfoMessageBox("完成", "关闭", "滤波器系数重载完成");
         }
     }

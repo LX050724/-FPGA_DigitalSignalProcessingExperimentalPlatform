@@ -4,7 +4,7 @@
 
 #include "FFT_Controller.h"
 #include "xaxidma.h"
-#include "AXI4_IO.h"
+#include "SignalProcessingUnit_Controller.h"
 #include "utils.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -41,8 +41,7 @@ int FFT_init_dma_channel(XAxiDma *interface) {
     CHECK_STATUS_RET(XAxiDma_BdRingStart(RingPtr));
 
     /* 向FFT Packager发送启动信号 */
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG3_OFFSET, 1);
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG3_OFFSET, 0);
+    SignalProcessingUnit_send_pulse(FFT_PackPulse);
 
     return XST_SUCCESS;
 }
@@ -64,23 +63,7 @@ int FFT_get_data() {
     }
 
     /* 向FFT Packager发送启动信号 */
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG3_OFFSET, 1);
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG3_OFFSET, 0);
+    SignalProcessingUnit_send_pulse(FFT_PackPulse);
 
     return status;
-}
-
-void FFT_select_signal(fft_source_t source) {
-    uint32_t reg = AXI4_IO_mReadReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG2_OFFSET);
-    switch (source) {
-        case FFT_SOURCE_ADC:
-            reg &= ~AXI4_IO_FFT_SOURCE_MASK;
-            break;
-        case FFT_SOURCE_FIR:
-            reg |= AXI4_IO_FFT_SOURCE_MASK;
-            break;
-        default:
-            break;
-    }
-    AXI4_IO_mWriteReg(XPAR_ADDA_AXI4_IO_0_S00_AXI_BASEADDR, AXI4_IO_S00_AXI_SLV_REG2_OFFSET, reg);
 }
