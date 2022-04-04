@@ -43,7 +43,7 @@ typedef enum {
 } Scope_Channel;
 
 void SPU_SwitchChannelSource(Channel_Index index, int channel);
-void SPU_SendPulse(Pulse_Type pulseType);
+void SPU_SendPackPulse(Pulse_Type pulseType);
 void SPU_SetAdcOffset(int32_t offset);
 void SPU_SetDacOffset(int32_t offset);
 void SPU_SetFirShift(uint32_t shift);

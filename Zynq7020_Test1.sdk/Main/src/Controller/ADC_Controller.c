@@ -119,7 +119,7 @@ int ADC_get_data(bool *triggered) {
     if (triggered) *triggered = t;
 
     /* 向ADC Packager发送启动信号 */
-    SPU_SendPulse(ADC_PackPulse);
+    SPU_SendPackPulse(ADC_PackPulse);
 
     return status;
 }
@@ -181,7 +181,7 @@ float ADC_get_rms_cycle() {
 
 static void ADC_calibration() {
     SPU_SetAdcOffset(0);
-    SPU_SendPulse(ADC_PackPulse);
+    SPU_SendPackPulse(ADC_PackPulse);
     vTaskDelay(1);
     ADC_get_data(NULL);
     uint64_t sum = 0;

@@ -41,7 +41,7 @@ int FFT_init_dma_channel(XAxiDma *interface) {
     CHECK_STATUS_RET(XAxiDma_BdRingStart(RingPtr));
 
     /* 向FFT Packager发送启动信号 */
-    SPU_SendPulse(FFT_PackPulse);
+    SPU_SendPackPulse(FFT_PackPulse);
 
     return XST_SUCCESS;
 }
@@ -63,7 +63,7 @@ int FFT_get_data() {
     }
 
     /* 向FFT Packager发送启动信号 */
-    SPU_SendPulse(FFT_PackPulse);
+    SPU_SendPackPulse(FFT_PackPulse);
 
     return status;
 }

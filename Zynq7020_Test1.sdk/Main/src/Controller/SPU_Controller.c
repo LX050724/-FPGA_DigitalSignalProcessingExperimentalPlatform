@@ -37,7 +37,7 @@ void SPU_SwitchChannelSource(Channel_Index index, int channel) {
     }
 }
 
-void SPU_SendPulse(Pulse_Type pulseType) {
+void SPU_SendPackPulse(Pulse_Type pulseType) {
     switch (pulseType) {
         case ADC_PackPulse:
             AXI4IO->ADC_PackPulse = 1;
