@@ -2,6 +2,7 @@
 // Created by yaoji on 2022/1/22.
 //
 
+#include <arm_math.h>
 #include "FFT_Controller.h"
 #include "xaxidma.h"
 #include "SPU_Controller.h"
@@ -11,11 +12,12 @@
 
 #define AXI4_IO_FFT_SOURCE_MASK 0x00000002
 
-int16_t FFT_Data[4096];
+float FFT_Data[4096];
 
 static XAxiDma_BdRing *RingPtr;
 static XAxiDma_Bd *BdPtr;
-static int16_t FFT_OriginalData[8192] __attribute__((aligned(8)));
+static uint32_t FFT_OriginalData[8192] __attribute__((aligned(8)));
+static uint32_t MaxTransferLen;
 
 /**
  * 初始化FFT使用的DMA通道
@@ -25,6 +27,7 @@ static int16_t FFT_OriginalData[8192] __attribute__((aligned(8)));
 int FFT_init_dma_channel(XAxiDma *interface) {
     XAxiDma_SelectCyclicMode(interface, XAXIDMA_DEVICE_TO_DMA, TRUE);
     RingPtr = XAxiDma_GetRxRing(interface);
+    MaxTransferLen = RingPtr->MaxTransferLen;
     XAxiDma_BdRingEnableCyclicDMA(RingPtr);
 
     CHECK_STATUS_RET(XAxiDma_BdRingAlloc(RingPtr, 1, &BdPtr));
@@ -53,12 +56,14 @@ int FFT_init_dma_channel(XAxiDma *interface) {
 int FFT_get_data() {
     int status = XST_SUCCESS;
     XAXIDMA_CACHE_INVALIDATE(BdPtr);
-    uint32_t receive_len = XAxiDma_BdGetActualLength(BdPtr, 0xffff);
+    uint32_t receive_len = XAxiDma_BdGetActualLength(BdPtr, MaxTransferLen);
     if (receive_len == sizeof(FFT_OriginalData)) {
         Xil_DCacheInvalidateRange((INTPTR) FFT_OriginalData, sizeof(FFT_OriginalData));
-        memcpy(FFT_Data, FFT_OriginalData, sizeof(FFT_Data));
+        for (int i = 0; i < sizeof(FFT_Data) / sizeof(float); i++) {
+            FFT_Data[i] = 20 * log10(FFT_OriginalData[i] / 8192.0 / 64.0);
+        }
     } else {
-        xil_printf("warning: FFT data length is incorrect\r\n");
+        xil_printf("warning: FFT data length is incorrect len=%d, expect len=%d\r\n", receive_len, sizeof(FFT_OriginalData));
         status = XST_DATA_LOST;
     }
 

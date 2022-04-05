@@ -58,6 +58,25 @@
 									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/include"/>
 								</option>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.flags.1425906633" name="Software Platform Inferred Flags" superClass="xilinx.gnu.compiler.inferred.swplatform.flags" value="  " valueType="string"/>
+								<option id="xilinx.gnu.compiler.dircategory.includes.1497220317" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arm_math/src/Include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/Drivers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/Controller}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/SystemConfig}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/FileDecoder}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/LVGL_App}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL/src/font}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL/src/widgets}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/CJSON}&quot;"/>
+								</option>
+								<option id="xilinx.gnu.compiler.symbols.defined.1170169855" name="Defined symbols (-D)" superClass="xilinx.gnu.compiler.symbols.defined" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="LV_LVGL_H_INCLUDE_SIMPLE"/>
+									<listOptionValue builtIn="false" value="__USE_RTOS"/>
+									<listOptionValue builtIn="false" value="LV_DEMO_CONF_INCLUDE_SIMPLE"/>
+								</option>
 							</tool>
 							<tool id="xilinx.gnu.armv7.toolchain.archiver.1249129571" name="ARM v7 archiver" superClass="xilinx.gnu.armv7.toolchain.archiver"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.linker.debug.1793136066" name="ARM v7 gcc linker" superClass="xilinx.gnu.armv7.c.toolchain.linker.debug">
@@ -96,6 +115,14 @@
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-llwip4,-lgcc,-lc,--end-group"/>
 								</option>
 								<option id="xilinx.gnu.c.linker.option.lscript.1179510453" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
+								<option id="xilinx.gnu.c.link.option.libs.567322999" name="Libraries (-l)" superClass="xilinx.gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="m"/>
+									<listOptionValue builtIn="false" value="arm_math"/>
+								</option>
+								<option id="xilinx.gnu.c.link.option.paths.328316095" name="Library search path (-L)" superClass="xilinx.gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/lib"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arm_math/Release}&quot;"/>
+								</option>
 							</tool>
 							<tool command="arm-none-eabi-size" id="xilinx.gnu.armv7.size.debug.1937848943" name="ARM v7 Print Size" superClass="xilinx.gnu.armv7.size.debug"/>
 						</toolChain>
@@ -124,7 +151,7 @@
 					<folderInfo id="xilinx.gnu.armv7.exe.release.1901649498." name="/" resourcePath="">
 						<toolChain id="xilinx.gnu.armv7.exe.release.toolchain.1088514391" name="Xilinx ARM v7 GNU Toolchain" superClass="xilinx.gnu.armv7.exe.release.toolchain">
 							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.arm.a53.x32" id="xilinx.armv7.target.gnu.base.release.1670220162" isAbstract="false" name="Release Platform" superClass="xilinx.armv7.target.gnu.base.release"/>
-							<builder buildPath="${workspace_loc:/Main}/Release" enableAutoBuild="true" id="xilinx.gnu.armv7.toolchain.builder.release.1366301933" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU make" superClass="xilinx.gnu.armv7.toolchain.builder.release"/>
+							<builder arguments="-j16" buildPath="${workspace_loc:/Main}/Release" command="make" enableAutoBuild="true" id="xilinx.gnu.armv7.toolchain.builder.release.1366301933" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU make" superClass="xilinx.gnu.armv7.toolchain.builder.release"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.assembler.release.1712681234" name="ARM v7 gcc assembler" superClass="xilinx.gnu.armv7.c.toolchain.assembler.release">
 								<inputType id="xilinx.gnu.assembler.input.880563943" superClass="xilinx.gnu.assembler.input"/>
 							</tool>
@@ -136,6 +163,25 @@
 								</option>
 								<option id="xilinx.gnu.compiler.misc.other.826630267" name="Other flags" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" valueType="string"/>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.flags.1623672587" name="Software Platform Inferred Flags" superClass="xilinx.gnu.compiler.inferred.swplatform.flags" value="  " valueType="string"/>
+								<option id="xilinx.gnu.compiler.symbols.defined.1101885887" name="Defined symbols (-D)" superClass="xilinx.gnu.compiler.symbols.defined" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="LV_LVGL_H_INCLUDE_SIMPLE"/>
+									<listOptionValue builtIn="false" value="__USE_RTOS"/>
+									<listOptionValue builtIn="false" value="LV_DEMO_CONF_INCLUDE_SIMPLE"/>
+								</option>
+								<option id="xilinx.gnu.compiler.dircategory.includes.555753109" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arm_math/src/Include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/Drivers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/Controller}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/SystemConfig}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/FileDecoder}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/LVGL_App}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL/src/font}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL/src/widgets}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/CJSON}&quot;"/>
+								</option>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.1798715747" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.cxx.toolchain.compiler.release.2120840713" name="ARM v7 g++ compiler" superClass="xilinx.gnu.armv7.cxx.toolchain.compiler.release">
@@ -145,6 +191,25 @@
 									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/include"/>
 								</option>
 								<option id="xilinx.gnu.compiler.inferred.swplatform.flags.230901477" name="Software Platform Inferred Flags" superClass="xilinx.gnu.compiler.inferred.swplatform.flags" value="  " valueType="string"/>
+								<option id="xilinx.gnu.compiler.dircategory.includes.913741940" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arm_math/src/Include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/Drivers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/Controller}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/SystemConfig}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/FileDecoder}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/LVGL_App}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL/src/font}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/LVGL/src/widgets}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Main/src/ThirdParty/CJSON}&quot;"/>
+								</option>
+								<option id="xilinx.gnu.compiler.symbols.defined.505194051" name="Defined symbols (-D)" superClass="xilinx.gnu.compiler.symbols.defined" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="LV_LVGL_H_INCLUDE_SIMPLE"/>
+									<listOptionValue builtIn="false" value="__USE_RTOS"/>
+									<listOptionValue builtIn="false" value="LV_DEMO_CONF_INCLUDE_SIMPLE"/>
+								</option>
 							</tool>
 							<tool id="xilinx.gnu.armv7.toolchain.archiver.279860750" name="ARM v7 archiver" superClass="xilinx.gnu.armv7.toolchain.archiver"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.linker.release.742949617" name="ARM v7 gcc linker" superClass="xilinx.gnu.armv7.c.toolchain.linker.release">
@@ -158,6 +223,14 @@
 								</option>
 								<option id="xilinx.gnu.c.linker.option.lscript.1229720300" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
 								<option id="xilinx.gnu.c.link.option.ldflags.459564231" name="Linker Flags" superClass="xilinx.gnu.c.link.option.ldflags" value=" -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec" valueType="string"/>
+								<option id="xilinx.gnu.c.link.option.libs.1410770360" name="Libraries (-l)" superClass="xilinx.gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="m"/>
+									<listOptionValue builtIn="false" value="arm_math"/>
+								</option>
+								<option id="xilinx.gnu.c.link.option.paths.1760937710" name="Library search path (-L)" superClass="xilinx.gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/lib"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arm_math/Release}&quot;"/>
+								</option>
 								<inputType id="xilinx.gnu.linker.input.1984150448" superClass="xilinx.gnu.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -174,6 +247,14 @@
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-llwip4,-lgcc,-lc,--end-group"/>
 								</option>
 								<option id="xilinx.gnu.c.linker.option.lscript.705483318" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
+								<option id="xilinx.gnu.c.link.option.libs.1872072640" name="Libraries (-l)" superClass="xilinx.gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="m"/>
+									<listOptionValue builtIn="false" value="arm_math"/>
+								</option>
+								<option id="xilinx.gnu.c.link.option.paths.824569484" name="Library search path (-L)" superClass="xilinx.gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/lib"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arm_math/Release}&quot;"/>
+								</option>
 							</tool>
 							<tool id="xilinx.gnu.armv7.size.release.2124730089" name="ARM v7 Print Size" superClass="xilinx.gnu.armv7.size.release"/>
 						</toolChain>

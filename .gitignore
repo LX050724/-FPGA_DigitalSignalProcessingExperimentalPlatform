@@ -19,3 +19,4 @@ vivado_pid*.str
 !*.srcs/*/bd/*/ip/*/*.xci
 
 .Xil
+~*

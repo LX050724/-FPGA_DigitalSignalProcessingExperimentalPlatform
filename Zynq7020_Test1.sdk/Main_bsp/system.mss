@@ -18,7 +18,6 @@ BEGIN PROCESSOR
  PARAMETER DRIVER_NAME = cpu_cortexa9
  PARAMETER DRIVER_VER = 2.7
  PARAMETER HW_INSTANCE = ps7_cortexa9_0
- PARAMETER extra_compiler_flags = -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -nostartfiles -g -Wall -Wextra -DconfigRECORD_STACK_HIGH_ADDRESS=1 -DDEBUG
 END
 
 

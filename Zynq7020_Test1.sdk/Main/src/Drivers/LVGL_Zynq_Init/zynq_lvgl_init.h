@@ -18,7 +18,7 @@
 extern xSemaphoreHandle LVGL_Mutex;
 #endif
 
-void zynq_lvgl_init(XIicPs *iic, XGpioPs *gpio);
+void zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio);
 
 void zynq_disp_flush_ready(void *);
 

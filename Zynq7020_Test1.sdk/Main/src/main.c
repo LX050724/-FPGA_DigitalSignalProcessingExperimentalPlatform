@@ -75,6 +75,7 @@
 #include "AmplitudeResponse/AmplitudeResponse.h"
 #include "xtime_l.h"
 #include "Controller/FIR_Controller.h"
+#include "main.h"
 
 #include <math.h>
 #include <malloc.h>
@@ -93,8 +94,14 @@ static XAxiDma_Bd DMA1_RxBd[64] __attribute__((aligned(64)));
 static TaskHandle_t DefaultTaskHandle;
 static void DefaultTask(void *pvParameters);
 
+static TaskHandle_t LED_TaskHandle;
+static void LED_Task(void *pvParameters);
+
 int main() {
     init_platform();
+
+    XGpioPs_Config *config = XGpioPs_LookupConfig(XPAR_XGPIOPS_0_DEVICE_ID);
+    CHECK_STATUS(XGpioPs_CfgInitialize(&gpio, config, config->BaseAddr));
 
     /**
      * 
@@ -106,6 +113,13 @@ int main() {
                 tskIDLE_PRIORITY, /* The task runs at the idle priority. */
                 &DefaultTaskHandle);
 
+    xTaskCreate(LED_Task,      /* The function that implements the task. */
+                "LED_Task",    /* Text name for the task, provided to assist debugging only. */
+                64,             /* The stack allocated to the task. */
+                NULL,             /* The task parameter is not used, so set to NULL. */
+                tskIDLE_PRIORITY, /* The task runs at the idle priority. */
+                &LED_TaskHandle);
+
     vTaskStartScheduler();
     while (1);
     cleanup_platform();
@@ -113,16 +127,10 @@ int main() {
 }
 
 void vApplicationTickHook(void) {
-    static uint32_t count = 0;
-    if (count++ == configTICK_RATE_HZ * 10) {
-        struct mallinfo mi = mallinfo();
-        xil_printf("heap_malloc_total=%d heap_free_total=%d heap_in_use=%d\n",
-               mi.arena, mi.fordblks, mi.uordblks);
-        count = 0;
-    }
 }
 
 void vApplicationIdleHook(void) {
+
 }
 
 void vApplicationDaemonTaskStartupHook() {
@@ -140,9 +148,6 @@ static void DefaultTask(void *pvParameters) {
 
     CHECK_STATUS(Fatfs_Init());
     network_init();
-
-    XGpioPs_Config *config = XGpioPs_LookupConfig(XPAR_XGPIOPS_0_DEVICE_ID);
-    CHECK_STATUS(XGpioPs_CfgInitialize(&gpio, config, config->BaseAddr));
 
     CHECK_STATUS(Init_qspi(&QspiInstance, XPAR_PS7_QSPI_0_DEVICE_ID));
 
@@ -165,13 +170,6 @@ static void DefaultTask(void *pvParameters) {
     CHECK_STATUS(DMA_Init(&dma2, XPAR_AXIDMA_2_DEVICE_ID));
     CHECK_STATUS(FIR_init_dma_channel(&dma2));
 
-    struct tm t = {0};
-    DS1337_GetTime(&iic1, &t);
-    char *str = UTF8_TO_GBK(DS1337_WeekStr(t.tm_wday));
-    xil_printf("now time is %d:%d:%d %d-%d-%d %s\r\n", t.tm_hour, t.tm_min, t.tm_sec,
-               t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, str);
-    os_free(str);
-
     CHECK_STATUS(ScuGic_Init());
     //	CHECK_STATUS(ScuGic_SetInterrupt(ScuGic_GetPLIntrId(3), kkk, NULL, INT_PRIORITY_160,
     // INT_TYPE_RISING_EDGE));
@@ -190,4 +188,19 @@ static void DefaultTask(void *pvParameters) {
     vPortExitCritical();
     mainWindowInit();
     vTaskDelete(NULL);
+}
+
+static void LED_Task(void *pvParameters) {
+    XGpioPs_SetDirectionPin(&gpio, LED_GPIO_PIN, GPIO_DIR_OUTPUT);
+    XGpioPs_SetOutputEnablePin(&gpio, LED_GPIO_PIN, 1);
+    for (;;) {
+        XGpioPs_WritePin(&gpio, LED_GPIO_PIN, 1);
+        vTaskDelay(10);
+        XGpioPs_WritePin(&gpio, LED_GPIO_PIN, 0);
+        vTaskDelay(20);
+        XGpioPs_WritePin(&gpio, LED_GPIO_PIN, 1);
+        vTaskDelay(10);
+        XGpioPs_WritePin(&gpio, LED_GPIO_PIN, 0);
+        vTaskDelay(100);
+    }
 }

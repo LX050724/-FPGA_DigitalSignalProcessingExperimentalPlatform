@@ -111,7 +111,7 @@ int ADC_get_data(bool *triggered) {
             }
         }
     } else {
-        xil_printf("warning: FFT data length is incorrect\r\n");
+        xil_printf("warning: ADC data length is incorrect\r\n");
         status = XST_DATA_LOST;
     }
 

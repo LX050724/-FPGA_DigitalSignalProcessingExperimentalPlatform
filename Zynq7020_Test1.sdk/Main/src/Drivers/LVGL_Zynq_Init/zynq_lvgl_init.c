@@ -14,20 +14,23 @@
 #include "task.h"
 #include "xil_cache.h"
 #include "utils.h"
+#include "main.h"
 
 static lv_indev_drv_t touch_drv;
-static lv_indev_t *indev_touchpad = NULL;
+static lv_indev_drv_t btn_drv;
 
+static GT911_Typedef gt911;
+
+static lv_indev_t *indev_touchpad = NULL;
 static lv_disp_drv_t disp_drv;
 static lv_disp_draw_buf_t disp_draw_buf;
 static lv_disp_t *disp = NULL;
-
-static GT911_Typedef gt911;
 
 static void zynq_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_p);
 static void zynq_monitor_cb(lv_disp_drv_t *drv, uint32_t time, uint32_t px);
 static void zynq_lv_log_print(const char *buf);
 static void zynq_touch_read(lv_indev_drv_t *drv, lv_indev_data_t *data);
+static void zynq_btn_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data);
 
 #ifdef __USE_RTOS
 xSemaphoreHandle LVGL_Mutex = NULL;
@@ -45,7 +48,7 @@ static void zynq_lv_timerTask(void *pvParameters) {
 
 #endif
 
-void zynq_lvgl_init(XIicPs *iic, XGpioPs *gpio) {
+void zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio) {
     LVGL_Mutex = xSemaphoreCreateMutex();
     CHECK_FATAL_ERROR(LVGL_Mutex == NULL);
 
@@ -77,10 +80,10 @@ void zynq_lvgl_init(XIicPs *iic, XGpioPs *gpio) {
 
     disp = lv_disp_drv_register(&disp_drv);
 
-    gt911.GPIOInstancePtr = gpio;
-    gt911.I2CInstancePtr = iic;
-    gt911.INT_PinNumber = 56;
-    gt911.RESET_PinNumber = 57;
+    gt911.GPIOInstancePtr = _gpio;
+    gt911.I2CInstancePtr = _iic;
+    gt911.INT_PinNumber = GT911_RST_GPIO_PIN;
+    gt911.RESET_PinNumber = GT911_INT_GPIO_PIN;
     GT911_Init(&gt911, GT911_DEVICE_ADDR_1);
 
     lv_indev_drv_init(&touch_drv);
@@ -89,6 +92,15 @@ void zynq_lvgl_init(XIicPs *iic, XGpioPs *gpio) {
     touch_drv.read_cb = zynq_touch_read;
     indev_touchpad = lv_indev_drv_register(&touch_drv);
     LV_UNUSED(indev_touchpad);
+
+//    由于LVGL将按键当成触摸屏的点击，所以这里的按键没有任何卵用
+//    XGpioPs_SetDirectionPin(_gpio, BTN_GPIO_PIN, GPIO_DIR_INPUT);
+//    lv_indev_drv_init(&btn_drv);
+//    btn_drv.disp = disp;
+//    btn_drv.type = LV_INDEV_TYPE_BUTTON;
+//    btn_drv.read_cb = zynq_btn_read;
+//    btn_drv.user_data = _gpio;
+//    lv_indev_drv_register(&btn_drv);
 
 #ifdef __USE_RTOS
     xTaskCreate(zynq_lv_timerTask, "LVGL Task", 1024, NULL, 1, &rtos_TaskHandle);
@@ -113,11 +125,22 @@ void zynq_disp_flush_ready(void *unused) {
 }
 
 static void zynq_lv_log_print(const char *buf) {
+#ifdef PRINT_ENCODE_GBK
     char *gbk = UTF8_TO_GBK(buf);
     print(gbk);
-    print("\r\n");
     os_free(gbk);
+#else
+    print(buf);
+#endif
+    outbyte('\r');
+    outbyte('\n');
 }
+
+static void zynq_btn_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
+    data->state = XGpioPs_ReadPin(indev_drv->user_data, BTN_GPIO_PIN) ?
+                  LV_INDEV_STATE_RELEASED : LV_INDEV_STATE_PRESSED;
+}
+
 
 static void zynq_touch_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
     static lv_coord_t last_x = 0;
@@ -134,9 +157,9 @@ static void zynq_touch_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
             last_y = t.touchPoints[0].y;
         }
         data->continue_reading = FALSE;
-        data->state = LV_INDEV_STATE_PR;
+        data->state = LV_INDEV_STATE_PRESSED;
     } else {
-        data->state = LV_INDEV_STATE_REL;
+        data->state = LV_INDEV_STATE_RELEASED;
     }
 
     /*Set the last pressed coordinates*/
