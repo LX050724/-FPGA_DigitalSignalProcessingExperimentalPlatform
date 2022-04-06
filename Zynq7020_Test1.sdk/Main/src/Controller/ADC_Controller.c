@@ -67,10 +67,12 @@ int ADC_get_data(bool *triggered) {
     int status = XST_SUCCESS;
     bool t = false;
     trigger_num = 0;
+    vPortEnterCritical();
     XAXIDMA_CACHE_INVALIDATE(BdPtr);
+    vPortExitCritical();
     uint32_t receive_len = XAxiDma_BdGetActualLength(BdPtr, 0xffff);
     if (receive_len == sizeof(ADC_OriginalData)) {
-        Xil_DCacheInvalidateRange((INTPTR) ADC_OriginalData, sizeof(ADC_OriginalData));
+        os_DCacheInvalidateRange(ADC_OriginalData, sizeof(ADC_OriginalData));
         int trigger_status = 0;
         int trigger_pos1 = 0;
         int16_t trigger_upper = trigger_level + trigger_hysteresis / 2;

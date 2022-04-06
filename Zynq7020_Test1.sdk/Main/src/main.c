@@ -88,8 +88,6 @@ XAdcPs xAdcPs;
 
 static XAxiDma_Bd DMA0_TxBd[64] __attribute__((aligned(64)));
 static XAxiDma_Bd DMA0_RxBd[64] __attribute__((aligned(64)));
-static XAxiDma_Bd DMA1_TxBd[64] __attribute__((aligned(64)));
-static XAxiDma_Bd DMA1_RxBd[64] __attribute__((aligned(64)));
 
 static TaskHandle_t DefaultTaskHandle;
 static void DefaultTask(void *pvParameters);
@@ -155,20 +153,15 @@ static void DefaultTask(void *pvParameters) {
     CHECK_STATUS(I2C_Init(&iic1, XPAR_XIICPS_1_DEVICE_ID, 400e3));
     DS1337_SetDefaultInstance(&iic1);
 
-    CHECK_STATUS(DMA_Init(&dma0, XPAR_AXIDMA_0_DEVICE_ID));
+    CHECK_STATUS(DMA_Init(&dma0, XPAR_ADDA_AXI_DMA_AD_DA_DEVICE_ID));
     CHECK_STATUS(DMA_SetTxRing(&dma0, DMA0_TxBd, sizeof(DMA0_TxBd)));
     CHECK_STATUS(DMA_SetRxRing(&dma0, DMA0_RxBd, sizeof(DMA0_RxBd)));
     CHECK_STATUS(DAC_init_dma_channel(&dma0));
     CHECK_STATUS(ADC_init_dma_channel(&dma0));
 
-    CHECK_STATUS(DMA_Init(&dma1, XPAR_AXIDMA_1_DEVICE_ID));
-    CHECK_STATUS(DMA_SetTxRing(&dma1, DMA1_TxBd, sizeof(DMA1_TxBd)));
-    CHECK_STATUS(DMA_SetRxRing(&dma1, DMA1_RxBd, sizeof(DMA1_RxBd)));
+    CHECK_STATUS(DMA_Init(&dma1, XPAR_ADDA_AXI_DMA_FFT_FIR_DEVICE_ID));
     CHECK_STATUS(FFT_init_dma_channel(&dma1));
-
-
-    CHECK_STATUS(DMA_Init(&dma2, XPAR_AXIDMA_2_DEVICE_ID));
-    CHECK_STATUS(FIR_init_dma_channel(&dma2));
+    CHECK_STATUS(FIR_init_dma_channel(&dma1));
 
     CHECK_STATUS(ScuGic_Init());
     //	CHECK_STATUS(ScuGic_SetInterrupt(ScuGic_GetPLIntrId(3), kkk, NULL, INT_PRIORITY_160,

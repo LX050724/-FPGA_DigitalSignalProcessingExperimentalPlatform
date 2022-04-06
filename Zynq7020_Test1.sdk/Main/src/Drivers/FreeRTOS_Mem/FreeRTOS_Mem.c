@@ -8,7 +8,7 @@
 #include "FreeRTOS_Mem/FreeRTOS_Mem.h"
 #include "FreeRTOS.h"
 #include "stdlib.h"
-
+#include "xil_cache.h"
 
 void *os_malloc(size_t __size) {
     vPortEnterCritical();
@@ -29,4 +29,16 @@ void os_free(void *__r) {
     vPortEnterCritical();
     free(__r);
     vPortExitCritical();
+}
+
+void os_DCacheInvalidateRange(void *adr, uint32_t len) {
+	vPortEnterCritical();
+	Xil_DCacheInvalidateRange(adr, len);
+	vPortExitCritical();
+}
+
+void os_DCacheFlushRange(void *adr, uint32_t len) {
+	vPortEnterCritical();
+	Xil_DCacheFlushRange(adr, len);
+	vPortExitCritical();
 }

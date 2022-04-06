@@ -29,6 +29,7 @@ int DAC_init_dma_channel(XAxiDma *interface) {
  * @return
  */
 int DAC_start(uint8_t *data, size_t len) {
+	vPortEnterCritical();
     /* 如果DMA正在运行, 停止DMA并更换缓冲区地址 */
     if (XAxiDma_BdRingHwIsStarted(TxRingPtr)) {
         uint32_t CR = XAxiDma_ReadReg(TxRingPtr->ChanBase, XAXIDMA_CR_OFFSET);
@@ -65,5 +66,6 @@ int DAC_start(uint8_t *data, size_t len) {
         XAxiDma_BdRingEnableCyclicDMA(TxRingPtr);
         CHECK_STATUS_RET(XAxiDma_BdRingStart(TxRingPtr));
     }
+    vPortExitCritical();
     return XST_SUCCESS;
 }

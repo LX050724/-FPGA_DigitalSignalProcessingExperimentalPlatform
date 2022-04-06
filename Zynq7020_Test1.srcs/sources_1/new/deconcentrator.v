@@ -55,6 +55,10 @@ module deconcentrator(
     // output OUT_30,
     // output OUT_31
     );
+
+	
+
+
     
     assign OUT_0 = DATA_IN[0];
     assign OUT_1 = DATA_IN[1];

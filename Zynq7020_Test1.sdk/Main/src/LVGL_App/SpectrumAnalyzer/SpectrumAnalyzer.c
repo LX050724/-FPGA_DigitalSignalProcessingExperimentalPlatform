@@ -41,13 +41,8 @@ static void fft_timer_cb(lv_timer_t *timer) {
     if (!lv_obj_is_visible(timer->user_data))
         return;
     if (FFT_get_data() == XST_SUCCESS) {
-        uint32_t max_index, min_index;
-        float max;
-        float min;
-        arm_max_f32(FFT_Data, 4096, &max, &max_index);
-        arm_min_f32(FFT_Data, 4096, &min, &min_index);
         for (int i = 0; i < 4096; i++) {
-            data[i] = inRange(-120.0, FFT_Data[i], 0.0) * 100;
+            data[i] = inRange(-120.0, FFT_OriginalData[i], 0.0) * 100;
         }
         lv_chart_refresh(chart);
     }

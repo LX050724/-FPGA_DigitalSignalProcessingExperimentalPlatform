@@ -76,7 +76,7 @@ static int8_t *DDS_buff_malloc(uint32_t freq, int *len_ptr) {
  */
 static int DDS_buff_replace(int8_t *buf_addr, int len) {
     int res = XST_SUCCESS;
-    Xil_DCacheFlushRange(buf_addr, len);
+    os_DCacheFlushRange(buf_addr, len);
     res = DAC_start(buf_addr, len);
 #if USE_DDS_RAM
 #else
