@@ -100,3 +100,7 @@ cmake-build*/
 */Release/
 */Debug/
 */bootimage/
+
+*.hdf
+*hw_platform_*/
+.sdk/

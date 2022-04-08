@@ -4,10 +4,15 @@
 
 #include "FileSelectBox.h"
 #include "Fatfs_init/Fatfs_Driver.h"
+#include "MessageBox.h"
+
+#define FLIE_SELECT_BACK_CTRL LV_TABLE_CELL_CTRL_CUSTOM_2
+#define FLIE_SELECT_DIR_CTRL LV_TABLE_CELL_CTRL_CUSTOM_1
 
 typedef struct {
     char *current_dir;
     char *selected_file;
+    const char *delete_filename;
     uint32_t path_len;
     lv_file_sel_click_cb_t click_callback;
     lv_file_sel_path_change_cb_t path_change_callback;
@@ -15,6 +20,7 @@ typedef struct {
 
 static void file_table_click_event(lv_event_t *event);
 static void file_table_delete_event(lv_event_t *event);
+static void lv_file_table_long_pressed_event(lv_event_t *event);
 static void scan_file(lv_obj_t *obj, const char *dir);
 
 lv_obj_t *lv_file_select_box_create(lv_obj_t *parent) {
@@ -28,8 +34,43 @@ lv_obj_t *lv_file_select_box_create(lv_obj_t *parent) {
     lv_obj_set_user_data(file_table, userData);
     lv_obj_add_event_cb(file_table, file_table_click_event, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_add_event_cb(file_table, file_table_delete_event, LV_EVENT_DELETE, NULL);
+    lv_obj_add_event_cb(file_table, lv_file_table_long_pressed_event, LV_EVENT_LONG_PRESSED, NULL);
     lv_file_select_box_set_dir(file_table, "0:/");
     return file_table;
+}
+
+static void delete_file_callback(uint16_t index, void *userdata) {
+    if (index) return;
+    lv_obj_t *table = userdata;
+    FileSelectBox_UserData *fs_data = table->user_data;
+    char *path = os_malloc(strlen(fs_data->current_dir) + strlen(fs_data->delete_filename) + 1);
+    if (path == NULL) goto err;
+    strcpy(path, fs_data->current_dir);
+    strcat(path, fs_data->delete_filename);
+    char *gbk = UTF8_TO_GBK(path);
+    if (f_unlink(gbk) != FR_OK) goto err;
+    os_free(gbk);
+    os_free(path);
+    InfoMessageBox("删除文件", "关闭", "'%s'删除成功", fs_data->delete_filename);
+    fs_data->delete_filename = NULL;
+    scan_file(userdata, fs_data->current_dir);
+    return;
+    err:
+    InfoMessageBox("删除文件", "关闭", "'%s'删除失败", fs_data->delete_filename);
+    fs_data->delete_filename = NULL;
+}
+
+static void lv_file_table_long_pressed_event(lv_event_t *event) {
+    lv_obj_t *target = lv_event_get_target(event);
+    uint16_t row, col;
+    lv_table_get_selected_cell(target, &row, &col);
+    if (!lv_table_has_cell_ctrl(target, row, col, FLIE_SELECT_DIR_CTRL)) {
+        const char *filename = lv_table_get_cell_value(target, row, col);
+        FileSelectBox_UserData *fs_data = target->user_data;
+        fs_data->delete_filename = filename;
+        QuestMessageBox("删除文件", "是", "否", delete_file_callback,
+                        target, "是否删除文件'%s'?", filename);
+    }
 }
 
 void lv_file_select_box_set_click_callback(lv_obj_t *obj, lv_file_sel_click_cb_t callback) {
@@ -73,9 +114,9 @@ static void file_table_click_event(lv_event_t *event) {
 
     const char *filename = lv_table_get_cell_value(file_table, row, 0);
 
-    if (lv_table_has_cell_ctrl(file_table, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1)) {
+    if (lv_table_has_cell_ctrl(file_table, row, 0, FLIE_SELECT_DIR_CTRL)) {
         /* 点击了一个文件夹，判断是返回上一级还是进入子文件夹 */
-        if (lv_table_has_cell_ctrl(file_table, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_2)) {
+        if (lv_table_has_cell_ctrl(file_table, row, 0, FLIE_SELECT_BACK_CTRL)) {
             /* 返回上一级，清除最后一个分隔符及之后的字符 */
             size_t len = strlen(userData->current_dir);
             userData->current_dir[len - 1] = '\0';
@@ -121,7 +162,7 @@ static void scan_file(lv_obj_t *obj, const char *dir) {
     if (buf[2] != 0) {
         lv_table_set_cell_value(obj, 0, 0, "返回上一级");
         lv_table_add_cell_ctrl(obj, 0, 0,
-                               LV_TABLE_CELL_CTRL_CUSTOM_1 | LV_TABLE_CELL_CTRL_CUSTOM_2);
+                               FLIE_SELECT_DIR_CTRL | FLIE_SELECT_BACK_CTRL);
         index = 1;
     }
 
@@ -141,9 +182,9 @@ static void scan_file(lv_obj_t *obj, const char *dir) {
 
         char *utf8 = GBK_TO_UTF8(file_info.fname);
         lv_table_clear_cell_ctrl(obj, index, 0,
-                                 LV_TABLE_CELL_CTRL_CUSTOM_1 | LV_TABLE_CELL_CTRL_CUSTOM_2);
+                                 FLIE_SELECT_DIR_CTRL | FLIE_SELECT_BACK_CTRL);
         if (file_info.fattrib & AM_DIR) {
-            lv_table_add_cell_ctrl(obj, index, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+            lv_table_add_cell_ctrl(obj, index, 0, FLIE_SELECT_DIR_CTRL);
             lv_table_set_cell_value_fmt(obj, index, 0, "%s/", utf8);
         } else {
             lv_table_set_cell_value(obj, index, 0, utf8);

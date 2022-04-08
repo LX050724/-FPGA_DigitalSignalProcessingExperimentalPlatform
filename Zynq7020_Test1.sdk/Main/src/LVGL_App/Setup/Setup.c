@@ -25,7 +25,7 @@ static lv_obj_t *sensor_info;
 static void refresh_timer_cb(lv_timer_t *timer);
 static void calibration_time_btn_cb(lv_event_t *e);
 static void wait_timer_cb(lv_timer_t *timer);
-static void flash_MsgBox_event_cb(uint16_t index);
+static void flash_MsgBox_event_cb(uint16_t index, void *userdata);
 static void flash_btn_event_cb(lv_event_t *e);
 
 static void signal_dropdown_cb(lv_event_t *event);
@@ -198,7 +198,8 @@ static void wait_timer_cb(lv_timer_t *timer) {
     }
 }
 
-static void flash_MsgBox_event_cb(uint16_t index) {
+static void flash_MsgBox_event_cb(uint16_t index, void *userdata) {
+    LV_UNUSED(userdata);
     if (index != 0) return;
     if (ProgramFLASH("0:/BOOT.BIN") != XST_SUCCESS) {
         LV_LOG_ERROR("FLASH编程错误");
@@ -222,11 +223,11 @@ static void flash_btn_event_cb(lv_event_t *e) {
     if (Fatfs_GetMountStatus(0) == FR_OK) {
         QuestMessageBox(
                 "写入固件",
-                "    该操作会将SD卡中的BOOT.bin文件写入到QSPI Flash中, 耗时大约33秒, 写入期间不要断电\n"
+                "是", "否", flash_MsgBox_event_cb, NULL,
+                "    该操作会将SD卡中的BOOT.bin文件写入到QSPI Flash中, 写入期间不要断电\n"
                 "    如果写入失败则将启动模式改为SD卡, "
                 "使用一个存有固件的SD卡启动设备重新进行此步骤即可\n"
-                "    是否开始刷入固件?",
-                "是", "否", flash_MsgBox_event_cb);
+                "    是否开始刷入固件?");
     } else {
         InfoMessageBox("错误", "取消", "未挂载SD卡, 无法更新FLASH固件");
     }

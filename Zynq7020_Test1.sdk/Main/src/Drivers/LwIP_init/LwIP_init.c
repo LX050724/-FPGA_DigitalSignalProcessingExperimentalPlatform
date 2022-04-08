@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "xparameters.h"
 #include "LwIP_apps/sntp/sntp_user.h"
+#include "LwIP_apps/tftp/tftp_user.h"
 #include "xil_printf.h"
 #include "netif/xemacpsif.h"
 
@@ -19,12 +20,12 @@ err_t dhcp_start(struct netif *netif);
 #define DEFAULT_IP_MASK "255.255.255.0"
 #define DEFAULT_GW_ADDRESS "192.168.20.1"
 
+#define THREAD_STACKSIZE 2048
+
 struct netif server_netif;
 
 static int complete_nw_thread;
 static TaskHandle_t network_init_thread_handle;
-
-#define THREAD_STACKSIZE 1024
 
 static void print_ip(char *msg, ip_addr_t *ip) {
     xil_printf(msg);
@@ -139,6 +140,7 @@ static void network_init_thread(void *p) {
     print_ip_settings(&(server_netif.ip_addr), &(server_netif.netmask), &(server_netif.gw));
 #endif /* LWIP_IPV6 */
     sntp_start();
+    tftp_start();
     vTaskDelete(NULL);
     return;
 }

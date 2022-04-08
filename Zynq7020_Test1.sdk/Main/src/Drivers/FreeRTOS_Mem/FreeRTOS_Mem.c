@@ -33,12 +33,12 @@ void os_free(void *__r) {
 
 void os_DCacheInvalidateRange(void *adr, uint32_t len) {
 	vPortEnterCritical();
-	Xil_DCacheInvalidateRange(adr, len);
+	Xil_DCacheInvalidateRange((INTPTR) adr, len);
 	vPortExitCritical();
 }
 
 void os_DCacheFlushRange(void *adr, uint32_t len) {
 	vPortEnterCritical();
-	Xil_DCacheFlushRange(adr, len);
+	Xil_DCacheFlushRange((INTPTR) adr, len);
 	vPortExitCritical();
 }

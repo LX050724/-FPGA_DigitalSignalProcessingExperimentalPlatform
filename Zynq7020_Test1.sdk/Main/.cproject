@@ -48,6 +48,8 @@
 									<listOptionValue builtIn="false" value="LV_LVGL_H_INCLUDE_SIMPLE"/>
 									<listOptionValue builtIn="false" value="__USE_RTOS"/>
 									<listOptionValue builtIn="false" value="LV_DEMO_CONF_INCLUDE_SIMPLE"/>
+									<listOptionValue builtIn="false" value="TFTP_MAX_MODE_LEN=32"/>
+									<listOptionValue builtIn="false" value="TFTP_MAX_FILENAME_LEN=512"/>
 								</option>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.1332812834" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
 							</tool>
@@ -76,7 +78,9 @@
 									<listOptionValue builtIn="false" value="LV_LVGL_H_INCLUDE_SIMPLE"/>
 									<listOptionValue builtIn="false" value="__USE_RTOS"/>
 									<listOptionValue builtIn="false" value="LV_DEMO_CONF_INCLUDE_SIMPLE"/>
+									<listOptionValue builtIn="false" value="TFTP_MAX_MODE_LEN=32"/>
 								</option>
+								<option id="xilinx.gnu.compiler.misc.other.1943038815" name="Other flags" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" valueType="string"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.toolchain.archiver.1249129571" name="ARM v7 archiver" superClass="xilinx.gnu.armv7.toolchain.archiver"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.linker.debug.1793136066" name="ARM v7 gcc linker" superClass="xilinx.gnu.armv7.c.toolchain.linker.debug">
@@ -167,6 +171,8 @@
 									<listOptionValue builtIn="false" value="LV_LVGL_H_INCLUDE_SIMPLE"/>
 									<listOptionValue builtIn="false" value="__USE_RTOS"/>
 									<listOptionValue builtIn="false" value="LV_DEMO_CONF_INCLUDE_SIMPLE"/>
+									<listOptionValue builtIn="false" value="TFTP_MAX_MODE_LEN=32"/>
+									<listOptionValue builtIn="false" value="TFTP_MAX_FILENAME_LEN=512"/>
 								</option>
 								<option id="xilinx.gnu.compiler.dircategory.includes.555753109" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../Main_bsp/ps7_cortexa9_0/include"/>
@@ -209,7 +215,9 @@
 									<listOptionValue builtIn="false" value="LV_LVGL_H_INCLUDE_SIMPLE"/>
 									<listOptionValue builtIn="false" value="__USE_RTOS"/>
 									<listOptionValue builtIn="false" value="LV_DEMO_CONF_INCLUDE_SIMPLE"/>
+									<listOptionValue builtIn="false" value="TFTP_MAX_MODE_LEN=32"/>
 								</option>
+								<option id="xilinx.gnu.compiler.misc.other.922989958" name="Other flags" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" valueType="string"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.toolchain.archiver.279860750" name="ARM v7 archiver" superClass="xilinx.gnu.armv7.toolchain.archiver"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.linker.release.742949617" name="ARM v7 gcc linker" superClass="xilinx.gnu.armv7.c.toolchain.linker.release">

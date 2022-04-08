@@ -103,12 +103,12 @@ void zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio) {
 //    lv_indev_drv_register(&btn_drv);
 
 #ifdef __USE_RTOS
-    xTaskCreate(zynq_lv_timerTask, "LVGL Task", 1024, NULL, 1, &rtos_TaskHandle);
+    xTaskCreate(zynq_lv_timerTask, "LVGL Task", 1024, NULL, 5, &rtos_TaskHandle);
 #endif
 }
 
 static void zynq_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_p) {
-    os_DCacheFlushRange((INTPTR) color_p, VDMA_BUFFER_SIZE);
+    os_DCacheFlushRange(color_p, VDMA_BUFFER_SIZE);
     VDMA_SetBufferIndex((void *) color_p == (void *) GRAM0 ? 0 : 1);
 }
 
