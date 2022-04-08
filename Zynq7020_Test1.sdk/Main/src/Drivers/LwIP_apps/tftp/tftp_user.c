@@ -22,12 +22,14 @@ static struct tftp_context context = {
 };
 
 void tftp_start() {
-    err_t err = tftp_init(&context);
-    if (err) {
-        xil_printf("tftp [init] error %d\r\n", err);
-    } else {
-        xil_printf("tftp [init] success\r\n");
-    }
+    if (Fatfs_GetMountStatus(SD_INDEX) == FR_OK) {
+        err_t err = tftp_init(&context);
+        if (err) {
+            xil_printf("tftp [init] error %d\r\n", err);
+        } else {
+            xil_printf("tftp [init] success\r\n");
+        }
+    } else xil_printf("tftp [init] no SD card, skip\r\n");
 }
 
 static void *tftp_fs_open(const char *fname, const char *mode, u8_t write) {

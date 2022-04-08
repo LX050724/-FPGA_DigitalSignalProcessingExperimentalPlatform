@@ -104,3 +104,4 @@ cmake-build*/
 *.hdf
 *hw_platform_*/
 .sdk/
+webtalk/
