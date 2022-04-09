@@ -15,5 +15,9 @@ int Fatfs_Init();
 int Fatfs_GetVolSize(const char *path, FSIZE_t *total_size, FSIZE_t *free_size);
 FRESULT Fatfs_GetMountStatus(int index);
 
+FRESULT Fatfs_mkdir_p(const char *path);
+FRESULT Fatfs_rm_rf(const char *path);
+char *Fatfs_GetFileDir(const char *filePath);
+
 char *UTF8_TO_GBK(const char *utf8_str);
 char *GBK_TO_UTF8(const char *gbk_str);

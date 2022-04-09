@@ -78,7 +78,7 @@
     <message>
         <location filename="mainwindow.ui" line="147"/>
         <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="185"/>
-        <location filename="mainwindow.cpp" line="81"/>
+        <location filename="mainwindow.cpp" line="93"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
@@ -105,43 +105,45 @@
         <translation type="vanished">选择COE文件</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="33"/>
+        <location filename="mainwindow.cpp" line="45"/>
         <source>Select coe file</source>
         <translation>选择COE文件</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="39"/>
+        <location filename="mainwindow.cpp" line="51"/>
         <source>Select wave file</source>
         <translation>选择波形文件</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="94"/>
+        <location filename="mainwindow.cpp" line="106"/>
         <source>Invalid IP address</source>
         <translation>无效的IP地址</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="62"/>
-        <location filename="mainwindow.cpp" line="76"/>
+        <location filename="mainwindow.cpp" line="74"/>
+        <location filename="mainwindow.cpp" line="88"/>
+        <location filename="mainwindow.cpp" line="184"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="62"/>
+        <location filename="mainwindow.cpp" line="74"/>
         <source>File does not exist</source>
         <translation>文件不存在</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="76"/>
+        <location filename="mainwindow.cpp" line="88"/>
+        <location filename="mainwindow.cpp" line="184"/>
         <source>Can not open process</source>
         <translation>不能打开进程</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="82"/>
+        <location filename="mainwindow.cpp" line="94"/>
         <source>FPGA digital signal processing experimental platform upload tool V1.0</source>
         <translation>FPGA数字信号处理实验平台上传工具V1.0</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="86"/>
+        <location filename="mainwindow.cpp" line="98"/>
         <source>Select firmware file</source>
         <translation>选择固件文件</translation>
     </message>

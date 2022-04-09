@@ -46,7 +46,7 @@ int Array_push(Array *array, void *p, size_t element_size);
  * @param index 
  * @return 
  */
-void *Array_get(Array *array, size_t index);
+void *Array_get(const Array *array, size_t index);
 
 
 /**

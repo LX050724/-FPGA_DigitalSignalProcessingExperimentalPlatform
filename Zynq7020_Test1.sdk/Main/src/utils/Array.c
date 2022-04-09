@@ -37,7 +37,7 @@ int Array_push(Array *self, void *p, size_t element_size) {
     return 1;
 }
 
-void *Array_get(Array *self, size_t index) {
+void *Array_get(const Array *self, size_t index) {
     if (index >= self->len) return NULL;
     else return self->p[index];
 }

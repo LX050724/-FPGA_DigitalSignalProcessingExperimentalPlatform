@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QProcess>
 #include <QUdpSocket>
+#include <QTemporaryDir>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -42,11 +43,14 @@ private:
     Ui::MainWindow *ui;
     QString log_buffer;
     QProcess *process;
+    QProcess *unzip_process;
     QUdpSocket *udpSocket;
     QHostAddress address;
+    QTemporaryDir tmp_dir;
     void tftpUpload(const QString &filepath, const QString &targetDir, const QString &targetFilename = QString());
     void log_printf(const char *fmt, ...);
     void udp_sendMsg(uint8_t message_id, const QByteArray &data = {});
     void log_println(const char *fmt, ...);
+    void unzip(const QString& file_path);
 };
 #endif // MAINWINDOW_H

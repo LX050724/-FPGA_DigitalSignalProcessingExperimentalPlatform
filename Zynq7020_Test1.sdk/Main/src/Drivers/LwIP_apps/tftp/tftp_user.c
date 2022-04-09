@@ -6,6 +6,7 @@
 #include "xil_printf.h"
 #include "FreeRTOS_Mem/FreeRTOS_Mem.h"
 #include "Fatfs_init/Fatfs_Driver.h"
+#include "utils/str_tool.h"
 #include <lwip/apps/tftp_server.h>
 #include <ff.h>
 
@@ -41,6 +42,13 @@ static void *tftp_fs_open(const char *fname, const char *mode, u8_t write) {
     char *utf8 = GBK_TO_UTF8(fname);
     xil_printf("tftp: [open] filename=%s, mode=%s, %c\r\n", utf8, mode, write ? 'w' : 'r');
     os_free(utf8);
+
+    if (write) {
+        char *path = Fatfs_GetFileDir(fname);
+        Fatfs_mkdir_p(path);
+        os_free(path);
+    }
+
     FRESULT ret = f_open(file_ptr, fname, write ? FA_WRITE | FA_CREATE_ALWAYS : FA_READ);
     if (ret == FR_OK) {
         xil_printf("tftp: [open] success handle=%p\r\n", file_ptr);

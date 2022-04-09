@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 #include <QFileDialog>
 #include <QHostAddress>
 #include <QMessageBox>
@@ -9,23 +9,33 @@
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow),
-          process(new QProcess(this)), udpSocket(new QUdpSocket(this)) {
+          process(new QProcess(this)), unzip_process(new QProcess(this)), udpSocket(new QUdpSocket(this)) {
     ui->setupUi(this);
+
     process->setProgram(QFileInfo("./tftp.exe").absoluteFilePath());
     connect(process, SIGNAL(readyReadStandardOutput()),
             this, SLOT(Process_readyReadOutput()));
-    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(Process_finished(int, QProcess::ExitStatus)));
+    connect(process, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(Process_finished(int,QProcess::ExitStatus)));
+
+    unzip_process->setProgram(QFileInfo("./7zr.exe").absoluteFilePath());
+    connect(unzip_process, SIGNAL(readyReadStandardOutput()),
+            this, SLOT(Process_readyReadOutput()));
+    connect(unzip_process, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(Process_finished(int,QProcess::ExitStatus)));
+
     ui->textEditLog->document()->setMaximumBlockCount(200);
     on_pushButtonSetIP_clicked();
     udpSocket->bind(70);
     connect(udpSocket, SIGNAL(readyRead()),
             this, SLOT(udp_readyRead()));
+    qDebug() << "tmp dir:" << tmp_dir.path();
 }
 
 MainWindow::~MainWindow() {
     delete ui;
     delete process;
+    delete unzip_process;
     delete udpSocket;
 }
 
@@ -158,3 +168,17 @@ void MainWindow::log_println(const char *fmt, ...) {
             va_end(ap);
 }
 
+void MainWindow::unzip(const QString &filename) {
+    QDir tmp(tmp_dir.path());
+    if (!tmp.exists("unzip")) {
+        tmp.mkdir("unzip");
+    }
+    tmp.cd("unzip");
+    QStringList args = {"-t7z", "e", filename, "-o" +tmp.absolutePath()};
+    unzip_process->setArguments(args);
+    unzip_process->setWorkingDirectory(tmp_dir.path());
+    ui->textEditLog->insertHtml("<font color=\"#1D8348\">7zr " + args.join(' ') + "</font><br>");
+    if (!unzip_process->open()) {
+        QMessageBox::warning(this, tr("Error"), tr("Can not open process"));
+    }
+}
