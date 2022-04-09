@@ -60,9 +60,16 @@ void MainWindow::on_pushButtonWaveUpload_clicked() {
 }
 
 void MainWindow::Process_readyReadOutput() {
-    while (process->bytesAvailable()) {
+    QString str;
+    while (process->bytesAvailable())
+        str += QString::fromLocal8Bit(process->readLine());
+    int new_line_index = str.lastIndexOf('\n');
+    if (new_line_index >= 0 || log_buf.length() > 32) {
+        log_buf << str.left(new_line_index);
         ui->textEditLog->moveCursor(QTextCursor::End);
-        ui->textEditLog->insertPlainText(QString::fromLocal8Bit(process->readLine()));
+        ui->textEditLog->insertPlainText(log_buf.join(""));
+        log_buf.clear();
+        log_buf << str.right(new_line_index);
     }
 }
 
@@ -154,18 +161,26 @@ void MainWindow::on_actionChick_firmware_Update_triggered() {
 
 void MainWindow::log_printf(const char *fmt, ...) {
     va_list ap;
-            va_start(ap, fmt);
+    va_start(ap, fmt);
+    ui->textEditLog->moveCursor(QTextCursor::End);
+    ui->textEditLog->insertPlainText(log_buf.join(""));
+    log_buf.clear();
+
     ui->textEditLog->moveCursor(QTextCursor::End);
     ui->textEditLog->insertHtml(QString::vasprintf(fmt, ap));
-            va_end(ap);
+    va_end(ap);
 }
 
 void MainWindow::log_println(const char *fmt, ...) {
     va_list ap;
-            va_start(ap, fmt);
+    va_start(ap, fmt);
+    ui->textEditLog->moveCursor(QTextCursor::End);
+    ui->textEditLog->insertPlainText(log_buf.join(""));
+    log_buf.clear();
+
     ui->textEditLog->moveCursor(QTextCursor::End);
     ui->textEditLog->insertHtml(QString::vasprintf(fmt, ap) + "<br>");
-            va_end(ap);
+    va_end(ap);
 }
 
 void MainWindow::unzip(const QString &filename) {

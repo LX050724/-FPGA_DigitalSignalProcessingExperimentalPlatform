@@ -47,6 +47,7 @@ private:
     QUdpSocket *udpSocket;
     QHostAddress address;
     QTemporaryDir tmp_dir;
+    QStringList log_buf;
     void tftpUpload(const QString &filepath, const QString &targetDir, const QString &targetFilename = QString());
     void log_printf(const char *fmt, ...);
     void udp_sendMsg(uint8_t message_id, const QByteArray &data = {});
