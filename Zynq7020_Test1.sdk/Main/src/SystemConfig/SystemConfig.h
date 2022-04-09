@@ -41,5 +41,6 @@ BootMod_t GetBootMod();
 
 int ProgramFLASH(const char *bootFile);
 int ProgramFLASH_isfinished();
+const char *getFirmwareVersion();
 
 #endif

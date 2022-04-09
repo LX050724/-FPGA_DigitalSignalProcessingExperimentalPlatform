@@ -5,7 +5,7 @@
 #include "DDS_Controller.h"
 #include "FreeRTOS_Mem/FreeRTOS_Mem.h"
 #include "math.h"
-#include "utils.h"
+#include "check.h"
 
 #define USE_DDS_RAM 1
 #define DDS_RAM_LEN 0x400000

@@ -1,5 +1,5 @@
 #include "XADC_Driver.h"
-#include "utils.h"
+#include "check.h"
 
 #define GET_DATA(XADC, SENSOR, DATA) {                                  \
     uint16_t RawData;                                                   \

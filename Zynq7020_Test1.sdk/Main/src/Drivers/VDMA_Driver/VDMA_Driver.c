@@ -9,7 +9,7 @@
 
 #include "ScuGic_Driver/ScuGic_Driver.h"
 #include "stdlib.h"
-#include "utils.h"
+#include "check.h"
 #include "xaxivdma.h"
 #include "xil_io.h"
 

@@ -13,7 +13,7 @@
 #include "VDMA_Driver/VDMA_Driver.h"
 #include "task.h"
 #include "xil_cache.h"
-#include "utils.h"
+#include "check.h"
 #include "main.h"
 
 static lv_indev_drv_t touch_drv;

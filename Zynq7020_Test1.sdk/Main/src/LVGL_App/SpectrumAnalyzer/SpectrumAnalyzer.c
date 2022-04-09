@@ -7,7 +7,7 @@
 #include "Controller/FFT_Controller.h"
 
 #include "xaxidma.h"
-#include "utils.h"
+#include "check.h"
 #include <arm_math.h>
 
 static lv_obj_t *chart;

@@ -6,12 +6,13 @@
 #include "lwip/sys.h"
 #include "netif/xadapter.h"
 #include "platform_config.h"
-#include "utils.h"
+#include "check.h"
 #include "xparameters.h"
 #include "LwIP_apps/sntp/sntp_user.h"
 #include "LwIP_apps/tftp/tftp_user.h"
 #include "xil_printf.h"
 #include "netif/xemacpsif.h"
+#include "LwIP_apps/udp_comm/udp_comm.h"
 
 extern volatile int dhcp_timoutcntr;
 err_t dhcp_start(struct netif *netif);
@@ -141,6 +142,7 @@ static void network_init_thread(void *p) {
 #endif /* LWIP_IPV6 */
     sntp_start();
     tftp_start();
+    udp_comm_start();
     vTaskDelete(NULL);
     return;
 }

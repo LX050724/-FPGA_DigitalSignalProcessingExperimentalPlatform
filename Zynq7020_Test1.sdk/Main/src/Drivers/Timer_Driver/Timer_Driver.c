@@ -8,7 +8,7 @@
 #include "Timer_Driver/Timer_Driver.h"
 
 #include "ScuGic_Driver/ScuGic_Driver.h"
-#include "utils.h"
+#include "check.h"
 #include "xil_types.h"
 #include "xscutimer.h"
 #include "xtime_l.h"

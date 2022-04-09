@@ -16,6 +16,8 @@ void *os_malloc(size_t __size);
 
 void *os_realloc(void *__r, size_t __size);
 
+void *os_reallocarray(void *ptr, size_t nmemb, size_t size);
+
 void os_free(void *__r);
 
 void os_DCacheInvalidateRange(void *adr, uint32_t len);

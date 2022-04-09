@@ -64,7 +64,7 @@
 #include "platform.h"
 #include "sleep.h"
 #include "timers.h"
-#include "utils.h"
+#include "check.h"
 #include "xil_printf.h"
 #include "AXI4_IO.h"
 #include "Controller/FFT_Controller.h"
@@ -76,6 +76,7 @@
 #include "xtime_l.h"
 #include "Controller/FIR_Controller.h"
 #include "main.h"
+#include "Controller/UDP_comm_Controller.h"
 
 #include <math.h>
 #include <malloc.h>
@@ -146,6 +147,7 @@ static void DefaultTask(void *pvParameters) {
 
     CHECK_STATUS(Fatfs_Init());
     network_init();
+    udp_comm_controller_init();
 
     CHECK_STATUS(Init_qspi(&QspiInstance, XPAR_PS7_QSPI_0_DEVICE_ID));
 

@@ -7,7 +7,7 @@
 
 #include "ScuGic_Driver/ScuGic_Driver.h"
 
-#include "utils.h"
+#include "check.h"
 
 const uint32_t InterruptID_Table[16] = {61, 62, 63, 64, 65, 66, 67, 68,
                                         84, 85, 86, 87, 88, 89, 90, 91};

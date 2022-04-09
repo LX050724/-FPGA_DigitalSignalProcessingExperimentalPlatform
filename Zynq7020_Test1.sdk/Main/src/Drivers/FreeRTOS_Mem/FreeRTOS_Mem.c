@@ -32,13 +32,17 @@ void os_free(void *__r) {
 }
 
 void os_DCacheInvalidateRange(void *adr, uint32_t len) {
-	vPortEnterCritical();
-	Xil_DCacheInvalidateRange((INTPTR) adr, len);
-	vPortExitCritical();
+    vPortEnterCritical();
+    Xil_DCacheInvalidateRange((INTPTR) adr, len);
+    vPortExitCritical();
 }
 
 void os_DCacheFlushRange(void *adr, uint32_t len) {
-	vPortEnterCritical();
-	Xil_DCacheFlushRange((INTPTR) adr, len);
-	vPortExitCritical();
+    vPortEnterCritical();
+    Xil_DCacheFlushRange((INTPTR) adr, len);
+    vPortExitCritical();
+}
+
+void *os_reallocarray(void *ptr, size_t nmemb, size_t size) {
+    return os_realloc(ptr, nmemb * size);
 }

@@ -7,8 +7,11 @@
 #include "cJSON.h"
 #include "semphr.h"
 #include "task.h"
-#include "utils.h"
+#include "check.h"
 #include "xil_io.h"
+#include <Timer_Driver/Timer_Driver.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 static const char *path;
 
@@ -52,12 +55,12 @@ static void ProgramFLASH_task(void *param) {
     if (rdsize != size) {
         xil_printf("error ");
     }
-    xil_printf("size = %d, rdsize = %d\r\n", (int)size, (int)rdsize);
+    xil_printf("size = %d, rdsize = %d\r\n", (int) size, (int) rdsize);
 
     update_flash(buf1, buf2, buf3, size);
-    xil_printf("end used time %dms\r\n", (int)(getTime_millis() - start_time));
+    xil_printf("end used time %dms\r\n", (int) (getTime_millis() - start_time));
 
-end:
+    end:
     path = NULL;
     os_free(buf1);
     os_free(buf2);
@@ -90,3 +93,37 @@ int ProgramFLASH(const char *bootFile) {
  * @return int 
  */
 int ProgramFLASH_isfinished() { return path == NULL; }
+
+
+static char FirmwareVersionStr[] = "000000000000";
+
+static void Get_Compile_Date_Base(uint8_t *Year, uint8_t *Month, uint8_t *Day) {
+    const char *pMonth[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    const char Date[] = __DATE__;
+    uint8_t i;
+    for (i = 0; i < 12; i++) {
+        if (memcmp(Date, pMonth[i], 3) == 0) {
+            *Month = i + 1;
+            break;
+        }
+    }
+    *Year = (uint8_t) atoi(Date + 9);
+    *Day = (uint8_t) atoi(Date + 4);
+}
+
+static void get_Compile_Time_Base(uint8_t *Hour, uint8_t *Min, uint8_t *Sec) {
+	const char Time[] = __TIME__;
+    *Hour = (uint8_t) atoi(Time);
+    *Min = (uint8_t) atoi(Time + 3);
+    *Sec = (uint8_t) atoi(Time + 6);
+}
+
+const char *getFirmwareVersion() {
+    if (FirmwareVersionStr[0] == '0') {
+        uint8_t Year, Month, Day, Hour, Min, Sec;
+        Get_Compile_Date_Base(&Year, &Month, &Day);
+        get_Compile_Time_Base(&Hour, &Min, &Sec);
+        sprintf(FirmwareVersionStr, "%04d%02d%02d%02d%02d", Year + 2000, Month, Day, Hour, Min);
+    }
+    return FirmwareVersionStr;
+}
