@@ -86,7 +86,7 @@ static int tftp_fs_write(void *handle, struct pbuf *p) {
         if (ret == FR_OK) {
             p = p->next;
             sum_bytes += write_bytes;
-        } else return sum_bytes;
+        } else return -1;
     }
     vPortExitCritical();
     return sum_bytes;

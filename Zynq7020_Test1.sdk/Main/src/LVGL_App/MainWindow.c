@@ -11,6 +11,10 @@
 #include "SpectrumAnalyzer/SpectrumAnalyzer.h"
 #include "Oscilloscope/Oscilloscope.h"
 #include "DigitalFilter/DigitalFilter.h"
+#include "MainWindow.h"
+#include "LwIP_init/LwIP_init.h"
+#include "lwip/ip4.h"
+
 
 lv_obj_t *tabview;
 
@@ -85,3 +89,32 @@ void mainWindowInit() {
     xSemaphoreGive(LVGL_Mutex);
 }
 
+
+void errShowIP(lv_timer_t *pTimer) {
+    LV_UNUSED(pTimer);
+    int speed = network_linkSpeed();
+    if (speed > 0) {
+        char ip_str[3][IP4ADDR_STRLEN_MAX];
+        memcpy(ip_str[0], ip4addr_ntoa(&netif_default->ip_addr), IP4ADDR_STRLEN_MAX);
+        memcpy(ip_str[1], ip4addr_ntoa(&netif_default->gw), IP4ADDR_STRLEN_MAX);
+        memcpy(ip_str[2], ip4addr_ntoa(&netif_default->netmask), IP4ADDR_STRLEN_MAX);
+        lv_label_set_text_fmt(pTimer->user_data, "IP: %s\ngateway: %s\nmask: %s\nMAC: %02X:%02X:%02X:%02X:%02X:%02X\nspeed: %dMbps",
+                              ip_str[0], ip_str[1], ip_str[2],
+                              netif_default->hwaddr[0], netif_default->hwaddr[1],
+                              netif_default->hwaddr[2], netif_default->hwaddr[3],
+                              netif_default->hwaddr[4], netif_default->hwaddr[5],
+                              speed);
+    } else {
+        lv_label_set_text(pTimer->user_data, "network cable is not connected");
+    }
+    lv_obj_update_layout(pTimer->user_data);
+}
+
+void errWindowInit() {
+    lv_obj_t *err_label = lv_label_create(lv_scr_act());
+    lv_label_set_text_static(err_label, "Error: Font file missing, use \"UploadTool\" to repair");
+    lv_obj_center(err_label);
+    lv_obj_t *net_info = lv_label_create(lv_scr_act());
+    lv_obj_align_to(net_info, err_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 20);
+    lv_timer_create(errShowIP, 500, net_info);
+}

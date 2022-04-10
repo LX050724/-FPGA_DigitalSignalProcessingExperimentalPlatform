@@ -48,7 +48,8 @@ static void zynq_lv_timerTask(void *pvParameters) {
 
 #endif
 
-void zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio) {
+int zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio) {
+    int ret = XST_SUCCESS;
     LVGL_Mutex = xSemaphoreCreateMutex();
     CHECK_FATAL_ERROR(LVGL_Mutex == NULL);
 
@@ -56,12 +57,17 @@ void zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio) {
     lv_img_cache_set_size(1);
     lv_log_register_print_cb(zynq_lv_log_print);
 
-    if (Fatfs_GetMountStatus(SD_INDEX) == FR_OK)
-        lv_user_font_load("0:/LVGL_FONT");
-    else if (Fatfs_GetMountStatus(EMMC_INDEX) == FR_OK)
-        lv_user_font_load("1:/LVGL_FONT");
-    else
+    if (Fatfs_GetMountStatus(SD_INDEX) == FR_OK) {
+        if (lv_user_font_load("0:/LVGL_FONT") != XST_SUCCESS) ret = XST_FAILURE;
+    } else if (Fatfs_GetMountStatus(EMMC_INDEX) == FR_OK) {
+        if (lv_user_font_load("1:/LVGL_FONT") != XST_SUCCESS) ret = XST_FAILURE;
+    } else {
         LV_LOG_ERROR("没有挂载有效的存储设备, 无法加载字体");
+        ret = XST_FAILURE;
+    }
+
+    // 字体加载成功切换默认字体
+    if (ret == XST_SUCCESS) defualt_font = &msyhl_16;
 
     lv_disp_drv_init(&disp_drv);
     lv_disp_draw_buf_init(&disp_draw_buf, GRAM0, GRAM1, VDMA_H_ACTIVE * VDMA_V_ACTIVE);
@@ -103,8 +109,10 @@ void zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio) {
 //    lv_indev_drv_register(&btn_drv);
 
 #ifdef __USE_RTOS
-    xTaskCreate(zynq_lv_timerTask, "LVGL Task", 1024, NULL, 5, &rtos_TaskHandle);
+    xTaskCreate(zynq_lv_timerTask, "LVGL Task", 2048,
+                NULL, 5, &rtos_TaskHandle);
 #endif
+    return ret;
 }
 
 static void zynq_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_p) {

@@ -179,9 +179,10 @@ static void DefaultTask(void *pvParameters) {
 //    ScuGic_SetInterrupt(ScuGic_GetPLIntrId(2), XAxiDma_MM2SIntrHandler, &dma0, INT_PRIORITY_80,
 //                        INT_TYPE_RISING_EDGE);
 
-    zynq_lvgl_init(&iic0, &gpio);
+    int ret = zynq_lvgl_init(&iic0, &gpio);
     vPortExitCritical();
-    mainWindowInit();
+    if (ret == XST_SUCCESS) mainWindowInit();
+    else errWindowInit();
     vTaskDelete(NULL);
 }
 

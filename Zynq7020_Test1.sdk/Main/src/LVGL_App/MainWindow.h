@@ -14,4 +14,6 @@ extern lv_obj_t *tabview;
 
 void mainWindowInit();
 
+void errWindowInit();
+
 #endif /* SRC_LVGL_APP_MAINWINDOW_MAINWINDOW_H_ */

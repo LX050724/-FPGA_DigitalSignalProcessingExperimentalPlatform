@@ -35,6 +35,6 @@ typedef struct {
     const char *filename;
 } x_file_t;
 
-void lv_user_font_load(const char *dir);
+int lv_user_font_load(const char *dir);
 
 #endif

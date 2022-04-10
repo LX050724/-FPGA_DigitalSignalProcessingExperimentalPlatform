@@ -41,9 +41,13 @@ lv_obj_t *lv_file_select_box_create(lv_obj_t *parent) {
 }
 
 static void delete_file_callback(uint16_t index, void *userdata) {
-    if (index) return;
     lv_obj_t *table = userdata;
     FileSelectBox_UserData *fs_data = table->user_data;
+
+    if (index) {
+        fs_data->delete_filename = NULL;
+        return;
+    }
 
     char *path = str_malloc_cat(fs_data->current_dir, fs_data->delete_filename, 0);
     if (path == NULL) goto err;
@@ -69,6 +73,11 @@ static void lv_file_table_long_pressed_event(lv_event_t *event) {
     lv_obj_t *target = lv_event_get_target(event);
     uint16_t row, col;
     lv_table_get_selected_cell(target, &row, &col);
+
+    if (row >= lv_table_get_row_cnt(target) ||
+        col >= lv_table_get_col_cnt(target))
+        return;
+
     if (lv_table_has_cell_ctrl(target, row, col, FILE_SELECT_BACK_CTRL))
         return;
 
@@ -123,10 +132,10 @@ static void file_table_click_event(lv_event_t *event) {
     if (userData->delete_filename) return;
     uint16_t row, col;
     lv_table_get_selected_cell(file_table, &row, &col);
-    if (col) return;
+    if (row >= lv_table_get_row_cnt(file_table) || col != 0)
+        return;
 
     const char *filename = lv_table_get_cell_value(file_table, row, 0);
-
     if (lv_table_has_cell_ctrl(file_table, row, 0, FILE_SELECT_DIR_CTRL)) {
         /* 点击了一个文件夹，判断是返回上一级还是进入子文件夹 */
         if (lv_table_has_cell_ctrl(file_table, row, 0, FILE_SELECT_BACK_CTRL)) {
@@ -145,10 +154,10 @@ static void file_table_click_event(lv_event_t *event) {
                 userData->path_len = new_len;
                 userData->current_dir = lv_mem_realloc(userData->current_dir, userData->path_len);
                 LV_ASSERT_MALLOC(userData->current_dir)
-                if (userData->path_change_callback)
-                    userData->path_change_callback(file_table, userData->current_dir);
             }
             strcat(userData->current_dir, filename);
+            if (userData->path_change_callback)
+                userData->path_change_callback(file_table, userData->current_dir);
         }
         /* 重新扫描文件夹 */
         scan_file(file_table, userData->current_dir);

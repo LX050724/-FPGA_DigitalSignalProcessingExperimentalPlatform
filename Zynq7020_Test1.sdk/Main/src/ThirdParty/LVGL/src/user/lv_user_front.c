@@ -4,6 +4,8 @@
 #include "src/misc/lv_log.h"
 #include "ff.h"
 
+const lv_font_t *defualt_font = &lv_font_montserrat_16;
+
 #if LV_FONT_MSYHL_8
 lv_font_t msyhl_8;
 #endif
@@ -344,6 +346,7 @@ static x_file_t font_files[] = {
 };
 
 static inline uint8_t *lv_user_font_getdata(const lv_font_t *font, int offset, int size) {
+    if (((x_file_t *)(font->user_data))->data == NULL) return NULL;
     return ((x_file_t *)(font->user_data))->data + offset;
 }
 
@@ -357,8 +360,10 @@ static const uint8_t *lv_user_font_get_bitmap(const lv_font_t *font, uint32_t un
     if (p_pos[0] != 0) {
         uint32_t pos = p_pos[0];
         glyph_dsc_t *gdsc = (glyph_dsc_t *)lv_user_font_getdata(font, pos, sizeof(glyph_dsc_t));
-        return lv_user_font_getdata(font, pos + sizeof(glyph_dsc_t),
-                                 gdsc->box_w * gdsc->box_h * __g_xbf_hd->bpp / 8);
+        if (gdsc) {
+            return lv_user_font_getdata(font, pos + sizeof(glyph_dsc_t),
+                                        gdsc->box_w * gdsc->box_h * __g_xbf_hd->bpp / 8);
+        } else return NULL;
     }
     return NULL;
 }
@@ -371,6 +376,7 @@ static bool lv_user_font_get_glyph_dsc(const lv_font_t *font, lv_font_glyph_dsc_
     }
     uint32_t unicode_offset = sizeof(x_header_t) + (unicode_letter - __g_xbf_hd->min) * 4;
     uint32_t *p_pos = (uint32_t *)lv_user_font_getdata(font, unicode_offset, 4);
+    if (p_pos == NULL) return false;
     if (p_pos[0] != 0) {
         glyph_dsc_t *gdsc = (glyph_dsc_t *)lv_user_font_getdata(font, p_pos[0], sizeof(glyph_dsc_t));
         dsc_out->adv_w = gdsc->adv_w;
@@ -386,11 +392,12 @@ static bool lv_user_font_get_glyph_dsc(const lv_font_t *font, lv_font_glyph_dsc_
 
 
 
-void lv_user_font_load(const char *dir) {
+int lv_user_font_load(const char *dir) {
+	int ret = 0;
     int len = strlen(dir) + strlen(font_files[0].filename) + 3;
     char *path = lv_mem_alloc(len);
 
-    for (int i = 0; i < sizeof(font_files) / sizeof(x_file_t); i++) {
+    for (int i = 0; i < sizeof(font_files) / sizeof(x_file_t) && ret == 0; i++) {
         font_files[i].font_obj->user_data = &font_files[i];
 
         font_files[i].font_obj->get_glyph_bitmap = lv_user_font_get_bitmap;
@@ -406,13 +413,16 @@ void lv_user_font_load(const char *dir) {
         LV_LOG_INFO("lv user font loading %s ...\r\n", path);
         if (f_open(&font_binfile, path, FA_READ) != FR_OK) {
             LV_LOG_ERROR("Failed to open font file %s", path);
-            continue;
+            ret = 1;
+            break;
         }
+
         FSIZE_t read_size = 0, file_size = f_size(&font_binfile);
 
         font_files[i].data = lv_mem_alloc(file_size);
         if (font_files[i].data == NULL) {
             LV_LOG_ERROR("Failed to malloc font memory size = %d", file_size);
+            ret = 1;
         }
 
         while (read_size < file_size) {
@@ -423,11 +433,10 @@ void lv_user_font_load(const char *dir) {
         }
         if (read_size != file_size) {
             LV_LOG_ERROR("Read size mismatch %d != %d", read_size, file_size);
+            ret = 1;
         }
         f_close(&font_binfile);
     }
-end:
     lv_mem_free(path);
-    return;
+    return ret;
 }
-

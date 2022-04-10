@@ -1,0 +1,14 @@
+[
+  {
+    "version": "202204302154",
+    "res_version": 2,
+    "filename": "fw_202204101407.bin",
+    "upgrade log": "test1"
+  },
+  {
+    "version": "202204092154",
+    "res_version": 1,
+    "filename": "fw_202204092154.bin",
+    "upgrade log": "test2"
+  }
+]

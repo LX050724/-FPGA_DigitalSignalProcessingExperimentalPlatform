@@ -5,14 +5,21 @@
 #include <QProcess>
 #include <QUdpSocket>
 #include <QTemporaryDir>
+#include <QJsonArray>
+#include <QNetworkAccessManager>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+class MainWindow : public QMainWindow {
+Q_OBJECT
+
+    typedef struct {
+        QString filepath;
+        QString targetDir;
+        QString targetFilename;
+    } tftp_uploadItem;
 
     typedef enum {
         UDP_COMM_ACK,
@@ -33,25 +40,42 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionUpload_firmware_triggered();
     void on_pushButtonSetIP_clicked();
-    void on_actionChick_firmware_Update_triggered();
 
     void Process_readyReadOutput();
-    void Process_finished(int, QProcess::ExitStatus);
+    void tftp_process_finished(int exitCode, QProcess::ExitStatus exitStatus);
+    void unzip_process_finished(int exitCode, QProcess::ExitStatus exitStatus);
     void udp_readyRead();
+    void http_request_finished(QNetworkReply *reply);
+
+    void on_actionCheck_firmware_Update_triggered();
 
 private:
     Ui::MainWindow *ui;
     QString log_buffer;
-    QProcess *process;
+    QProcess *tftp_process;
     QProcess *unzip_process;
     QUdpSocket *udpSocket;
+    QNetworkAccessManager *networkAccessManager;
+
     QHostAddress address;
-    QTemporaryDir tmp_dir;
+    QTemporaryDir temporaryDir;
     QStringList log_buf;
-    void tftpUpload(const QString &filepath, const QString &targetDir, const QString &targetFilename = QString());
-    void log_printf(const char *fmt, ...);
+    QString fw_version;
+    QJsonArray fw_list;
+    QJsonArray res_list;
+    QJsonArray app_list;
+    QList<tftp_uploadItem> tftpUpload_fifo;
+protected:
+    void closeEvent(QCloseEvent *event) override;
+private:
+
+    void update_fw();
     void udp_sendMsg(uint8_t message_id, const QByteArray &data = {});
+    void tftpUpload(const QString &filepath, const QString &targetDir, const QString &targetFilename = QString());
+    void unzip(const QString &file_path);
+    void log_printf(const char *fmt, ...);
     void log_println(const char *fmt, ...);
-    void unzip(const QString& file_path);
+    QList<MainWindow::tftp_uploadItem> searchDir(const QString &path, const QString &targetDir);
 };
+
 #endif // MAINWINDOW_H

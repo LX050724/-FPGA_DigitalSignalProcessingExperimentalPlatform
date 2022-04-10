@@ -80,6 +80,8 @@ typedef struct _lv_font_t {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
+extern const lv_font_t *defualt_font;
+
 #if LV_FONT_MSYHL_8
 extern lv_font_t msyhl_8;
 #endif
