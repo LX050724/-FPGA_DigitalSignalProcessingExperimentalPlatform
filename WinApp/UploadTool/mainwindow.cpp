@@ -16,7 +16,7 @@
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow),
           tftp_process(new QProcess(this)), unzip_process(new QProcess(this)), udpSocket(new QUdpSocket(this)),
-          networkAccessManager(new QNetworkAccessManager(this)) {
+          networkAccessManager(new QNetworkAccessManager(this)), downloadWin(new download_win()) {
     ui->setupUi(this);
 
     tftp_process->setProgram(QFileInfo("./tftp.exe").absoluteFilePath());
@@ -34,12 +34,22 @@ MainWindow::MainWindow(QWidget *parent)
     connect(networkAccessManager, SIGNAL(finished(QNetworkReply * )),
             this, SLOT(http_request_finished(QNetworkReply * )));
 
+    connect(this, SIGNAL(receive_file_list(const QStringList &)),
+            downloadWin, SLOT(receive_file_list(const QStringList &)));
+
+    connect(downloadWin, SIGNAL(request_UDPMessage(uint8_t, const QByteArray &)),
+            this, SLOT(udp_sendMsg(uint8_t, const QByteArray &)));
+
+    connect(downloadWin, SIGNAL(tftpDownload(const QString &, const QString &)),
+            this, SLOT(tftpDownload(const QString &, const QString &)));
+
     ui->textEditLog->document()->setMaximumBlockCount(200);
     on_pushButtonSetIP_clicked();
     udpSocket->bind(70);
     connect(udpSocket, SIGNAL(readyRead()),
             this, SLOT(udp_readyRead()));
     qDebug() << "tmp dir:" << temporaryDir.path();
+    udp_sendMsg(1, "0:/数字滤波器");
 }
 
 MainWindow::~MainWindow() {
@@ -48,6 +58,7 @@ MainWindow::~MainWindow() {
     delete unzip_process;
     delete udpSocket;
     delete networkAccessManager;
+    delete downloadWin;
 }
 
 void MainWindow::on_toolButtonCoePath_clicked() {
@@ -72,8 +83,12 @@ void MainWindow::on_pushButtonWaveUpload_clicked() {
 
 void MainWindow::Process_readyReadOutput() {
     QString str;
-    while (tftp_process->bytesAvailable())
-        str += QString::fromLocal8Bit(tftp_process->readLine());
+    if (tftp_process->bytesAvailable())
+        str += QString::fromLocal8Bit(tftp_process->readAll());
+
+    if (unzip_process->bytesAvailable())
+        str += QString::fromLocal8Bit(unzip_process->readAll());
+
     int new_line_index = str.lastIndexOf('\n');
     if (new_line_index >= 0 || log_buf.length() > 32) {
         log_buf << str.left(new_line_index);
@@ -87,49 +102,18 @@ void MainWindow::Process_readyReadOutput() {
 
 QList<MainWindow::tftp_uploadItem> MainWindow::searchDir(const QString &path, const QString &targetDir) {
     QFileInfo fileInfo(path);
-    if (fileInfo.isFile()) return {{fileInfo.absoluteFilePath(), targetDir, ""}};
+    if (fileInfo.isFile()) return {{TFTP_UPLOAD, fileInfo.absoluteFilePath(), targetDir}};
     QList<MainWindow::tftp_uploadItem> list;
     QDir dir(path);
     for (const QFileInfo &info: dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries)) {
         if (info.isFile()) {
-            list.append({info.absoluteFilePath(), targetDir, ""});
+            list.append({TFTP_UPLOAD, info.absoluteFilePath(), targetDir});
         } else {
             QDir target_dir(targetDir);
             list.append(searchDir(info.absoluteFilePath(), target_dir.absoluteFilePath(info.fileName())));
         }
     }
     return list;
-}
-
-void MainWindow::tftpUpload(const QString &filepath, const QString &targetDir, const QString &targetFilename) {
-    if (tftp_process->isOpen()) {
-        tftpUpload_fifo.append({filepath, targetDir, targetFilename});
-        return;
-    }
-    QFileInfo sourceFile(filepath);
-    if (sourceFile.isDir()) {
-        auto list = searchDir(filepath, targetDir);
-        auto item = list.first();
-        list.removeFirst();
-        tftpUpload_fifo.append(list);
-        tftpUpload(item.filepath, item.targetDir, item.targetFilename);
-        return;
-    }
-    if (!sourceFile.exists()) {
-        QMessageBox::warning(this, tr("Error"), tr("File does not exist"));
-        return;
-    }
-    QDir dir(targetDir);
-    QStringList args;
-    args << "-i" << "-t1";
-    args << address.toString();
-    args << "PUT";
-    args << sourceFile.filePath();
-    args << dir.absoluteFilePath(targetFilename.isEmpty() ? sourceFile.fileName() : targetFilename);
-    ui->textEditLog->moveCursor(QTextCursor::End);
-    ui->textEditLog->insertHtml("<font color=\"#1D8348\">tftp " + args.join(' ') + "</font><br>");
-    tftp_process->setArguments(args);
-    if (!tftp_process->open()) QMessageBox::warning(this, tr("Error"), tr("Can not open process"));
 }
 
 void MainWindow::on_actionAbout_triggered() {
@@ -157,10 +141,13 @@ void MainWindow::tftp_process_finished(int exitCode, QProcess::ExitStatus exitSt
         log_println("<font color=\"#CB4335\">exit code: %d, CrashExit</font>", exitCode);
     }
     tftp_process->close();
-    if (!tftpUpload_fifo.isEmpty()) {
-        tftp_uploadItem item = tftpUpload_fifo.first();
-        tftpUpload(item.filepath, item.targetDir, item.targetFilename);
-        tftpUpload_fifo.pop_front();
+    if (!tftp_fifo.isEmpty()) {
+        tftp_uploadItem item = tftp_fifo.first();
+        if (item.dir == TFTP_UPLOAD)
+            tftpUpload(item.filepath, item.targetDir, item.targetFilename);
+        else
+            tftpDownload(item.filepath, item.targetDir);
+        tftp_fifo.pop_front();
     }
 }
 
@@ -180,7 +167,12 @@ void MainWindow::udp_readyRead() {
     QByteArray datagram;
     datagram.resize((int) udpSocket->pendingDatagramSize());
     udpSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
-    uint8_t message_id = datagram[0];
+    if (datagram[0] != (char) UDP_COMM_CMD_CODE::UDP_COMM_ACK) {
+        log_printf("<font color=\"#2E86C1\">Device[%s:%d]--></font>", sender.toString().data(), senderPort);
+        log_println("<font color=\"#FF0033\">Error: %d, Message:%d</font>", datagram[0], datagram[1]);
+    }
+    uint8_t message_id = datagram[1];
+    QByteArray data = datagram.mid(2);
     log_printf("<font color=\"#2E86C1\">Device[%s:%d]--></font>", sender.toString().data(), senderPort);
     switch (message_id) {
         case 0: {
@@ -189,18 +181,13 @@ void MainWindow::udp_readyRead() {
             update_fw();
             break;
         }
-        case 0xff: {
-            uint8_t ret_code = datagram[1];
-            switch ((UDP_COMM_CMD_CODE) ret_code) {
-                case UDP_COMM_ACK:
-                    break;
-                case UDP_COMM_ERR:
-                    log_println("<font color=\"#E53935\">Error: Unknown error</font>");
-                    break;
-                case UDP_COMM_NO_MSG_ID:
-                    log_println("<font color=\"#E53935\">Error: No such message id</font>");
-                    break;
-            }
+        case 1: {
+            log_println("<font color=\"#D4AC0D\">file list</font>");
+            QJsonDocument jsonDom = QJsonDocument::fromJson(data);
+            QStringList file_list;
+            for (const auto &i: jsonDom.array())
+                file_list.append(i.toString());
+            emit receive_file_list(file_list);
         }
     }
 }
@@ -335,6 +322,69 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     if (unzip_process->isOpen() || tftp_process->isOpen()) {
         QMessageBox::warning(this, tr("is running"), tr("A task is currently running"));
         event->ignore();
-    } else QWidget::closeEvent(event);
+        return;
+    }
+    downloadWin->close();
+    QWidget::closeEvent(event);
+}
+
+void MainWindow::tftpDownload(const QString &filepath, const QString &save_path) {
+    if (tftp_process->isOpen()) {
+        tftp_fifo.append({TFTP_DOWNLOAD, filepath, save_path});
+        return;
+    }
+    QFileInfo sourceFile(filepath);
+    if (sourceFile.isDir()) {
+        QMessageBox::warning(this, tr("Error"), tr("Can not download folder"));
+        return;
+    }
+
+    QStringList args;
+    args << "-i" << "-t1";
+    args << address.toString();
+    args << "GET";
+    args << sourceFile.filePath();
+    args << QDir(save_path).absoluteFilePath(sourceFile.fileName());
+
+    ui->textEditLog->moveCursor(QTextCursor::End);
+    ui->textEditLog->insertHtml("<font color=\"#1D8348\">tftp " + args.join(' ') + "</font><br>");
+    tftp_process->setArguments(args);
+    if (!tftp_process->open()) QMessageBox::warning(this, tr("Error"), tr("Can not open process"));
+}
+
+void MainWindow::tftpUpload(const QString &filepath, const QString &targetDir, const QString &targetFilename) {
+    if (tftp_process->isOpen()) {
+        tftp_fifo.append({TFTP_UPLOAD, filepath, targetDir, targetFilename});
+        return;
+    }
+    QFileInfo sourceFile(filepath);
+    if (sourceFile.isDir()) {
+        auto list = searchDir(filepath, targetDir);
+        auto item = list.first();
+        list.removeFirst();
+        tftp_fifo.append(list);
+        tftpUpload(item.filepath, item.targetDir, item.targetFilename);
+        return;
+    }
+    if (!sourceFile.exists()) {
+        QMessageBox::warning(this, tr("Error"), tr("File does not exist"));
+        return;
+    }
+    QDir dir(targetDir);
+    QStringList args;
+    args << "-i" << "-t1";
+    args << address.toString();
+    args << "PUT";
+    args << sourceFile.filePath();
+    args << dir.absoluteFilePath(targetFilename.isEmpty() ? sourceFile.fileName() : targetFilename);
+    ui->textEditLog->moveCursor(QTextCursor::End);
+    ui->textEditLog->insertHtml("<font color=\"#1D8348\">tftp " + args.join(' ') + "</font><br>");
+    tftp_process->setArguments(args);
+    if (!tftp_process->open()) QMessageBox::warning(this, tr("Error"), tr("Can not open process"));
+}
+
+
+void MainWindow::on_actionDownload_screen_shot_triggered() {
+    downloadWin->show();
 }
 

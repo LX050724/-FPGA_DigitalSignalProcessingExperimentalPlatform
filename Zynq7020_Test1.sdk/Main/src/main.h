@@ -5,6 +5,9 @@
 #ifndef ZYNQ7020_MAIN_H
 #define ZYNQ7020_MAIN_H
 
+#include "FreeRTOS.h"
+#include "semphr.h"
+
 #include "xiicps.h"
 #include "xgpiops.h"
 #include "xaxidma.h"
@@ -24,5 +27,6 @@ extern XGpioPs gpio;
 extern XAxiDma dma0, dma1, dma2;
 extern XQspiPs QspiInstance;
 extern XAdcPs xAdcPs;
+extern SemaphoreHandle_t key_handle;
 
 #endif //ZYNQ7020_MAIN_H

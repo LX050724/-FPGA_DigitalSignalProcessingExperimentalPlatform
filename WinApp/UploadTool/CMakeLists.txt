@@ -36,9 +36,8 @@ set(TS_FILES UploadTool_zh_CN.ts)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+        mainwindow.h mainwindow.cpp mainwindow.ui
+        download_win.h download_win.cpp download_win.ui
         resource.qrc
         ${TS_FILES}
 )

@@ -47,7 +47,6 @@
 
 #include <Fatfs_init/Fatfs_Driver.h>
 #include <VDMA_Driver/VDMA_Driver.h>
-
 #include "LwIP_init/LwIP_init.h"
 #include "DMA_Driver/DMA_Driver.h"
 #include "DS1337_Driver/DS1337_Driver.h"
@@ -59,10 +58,7 @@
 #include "LVGL_Zynq_Init/zynq_lvgl_init.h"
 #include "MainWindow.h"
 #include "ScuGic_Driver/ScuGic_Driver.h"
-#include "Timer_Driver/Timer_Driver.h"
-#include "lwip/init.h"
 #include "platform.h"
-#include "sleep.h"
 #include "timers.h"
 #include "check.h"
 #include "xil_printf.h"
@@ -72,20 +68,19 @@
 #include "Controller/DAC_Controller.h"
 #include "XADC_Driver/XADC_Driver.h"
 #include "cJSON.h"
-#include "AmplitudeResponse/AmplitudeResponse.h"
 #include "xtime_l.h"
 #include "Controller/FIR_Controller.h"
 #include "main.h"
 #include "Controller/UDP_comm_Controller.h"
 
-#include <math.h>
-#include <malloc.h>
 
 XIicPs iic0, iic1;
 XGpioPs gpio;
 XAxiDma dma0, dma1, dma2;
 XQspiPs QspiInstance;
 XAdcPs xAdcPs;
+
+SemaphoreHandle_t key_handle;
 
 static XAxiDma_Bd DMA0_TxBd[64] __attribute__((aligned(64)));
 static XAxiDma_Bd DMA0_RxBd[64] __attribute__((aligned(64)));
@@ -96,8 +91,11 @@ static void DefaultTask(void *pvParameters);
 static TaskHandle_t LED_TaskHandle;
 static void LED_Task(void *pvParameters);
 
+static void key_interrupt(void *p);
+
 int main() {
     init_platform();
+    key_handle = xSemaphoreCreateBinary();
 
     XGpioPs_Config *config = XGpioPs_LookupConfig(XPAR_XGPIOPS_0_DEVICE_ID);
     CHECK_STATUS(XGpioPs_CfgInitialize(&gpio, config, config->BaseAddr));
@@ -166,8 +164,8 @@ static void DefaultTask(void *pvParameters) {
     CHECK_STATUS(FIR_init_dma_channel(&dma1));
 
     CHECK_STATUS(ScuGic_Init());
-    //	CHECK_STATUS(ScuGic_SetInterrupt(ScuGic_GetPLIntrId(3), kkk, NULL, INT_PRIORITY_160,
-    // INT_TYPE_RISING_EDGE));
+    CHECK_STATUS(ScuGic_SetInterrupt(ScuGic_GetPLIntrId(5), key_interrupt, key_handle,
+                                     INT_PRIORITY_160, INT_TYPE_RISING_EDGE));
 
     CHECK_STATUS(VDMA_Init());
     CHECK_STATUS(VDMA_InitIntterupt(&xInterruptController, INT_PRIORITY_80, ScuGic_GetPLIntrId(0),
@@ -184,6 +182,12 @@ static void DefaultTask(void *pvParameters) {
     if (ret == XST_SUCCESS) mainWindowInit();
     else errWindowInit();
     vTaskDelete(NULL);
+}
+
+static void key_interrupt(void *p) {
+    portBASE_TYPE xHigherPriorityTaskWoken;
+    xSemaphoreGiveFromISR(p, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void LED_Task(void *pvParameters) {

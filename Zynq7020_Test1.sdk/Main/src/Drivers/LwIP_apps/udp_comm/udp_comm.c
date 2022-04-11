@@ -2,6 +2,7 @@
 // Created by yaoji on 2022/4/9.
 //
 
+#include <string.h>
 #include "udp_comm.h"
 #include "utils/Array.h"
 
@@ -36,6 +37,24 @@ void udp_comm_RegMegProcessor(uint8_t message_id, struct pbuf *(*fun)(struct pbu
     Array_push(&processorList, &processor, sizeof(MsgProcessor));
 }
 
+struct pbuf *send_err(uint8_t err_id, uint8_t id) {
+    struct pbuf *ret_buf = pbuf_alloc(PBUF_TRANSPORT, 2, PBUF_RAM);
+    uint8_t *data = ret_buf->payload;
+    data[0] = err_id;
+    data[1] = id;
+    return ret_buf;
+}
+
+struct pbuf *send_data(uint8_t id, const void *data, int len) {
+    struct pbuf *ret_buf = pbuf_alloc(PBUF_TRANSPORT, len + 2, PBUF_RAM);
+    if (ret_buf == NULL) return send_err(UDP_COMM_ERR, id);
+    uint8_t *p = ret_buf->payload;
+    p[0] = UDP_COMM_ACK;
+    p[1] = id;
+    memcpy(p + 2, data, len);
+    return ret_buf;
+}
+
 static void udp_comm_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
     uint8_t message_id = ((uint8_t *) p->payload)[0];
     for (int i = 0; i < processorList.len; i++) {
@@ -51,9 +70,7 @@ static void udp_comm_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
             }
         }
     }
-    struct pbuf *ret_ubf = pbuf_alloc(PBUF_TRANSPORT, 2, PBUF_RAM);
-    ((uint8_t *)ret_ubf->payload)[0] = UDP_COMM_RET_HEAD;
-    ((uint8_t *)ret_ubf->payload)[1] = UDP_COMM_NO_MSG_ID;
+    struct pbuf *ret_ubf = send_err(UDP_COMM_NO_MSG_ID, 0xff);
     udp_sendto(pcb, ret_ubf, addr, port);
     pbuf_free(ret_ubf);
     ret:

@@ -9,6 +9,7 @@
 #include "utils/str_tool.h"
 #include <lwip/apps/tftp_server.h>
 #include <ff.h>
+#include <cJSON.h>
 
 static void *tftp_fs_open(const char *fname, const char *mode, u8_t write);
 static void tftp_fs_close(void *handle);

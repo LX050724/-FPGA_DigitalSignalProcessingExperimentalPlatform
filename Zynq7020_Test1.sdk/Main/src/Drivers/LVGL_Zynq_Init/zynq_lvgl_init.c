@@ -15,6 +15,7 @@
 #include "xil_cache.h"
 #include "check.h"
 #include "main.h"
+#include "zynq_lvgl_snapshot.h"
 
 static lv_indev_drv_t touch_drv;
 static lv_indev_drv_t btn_drv;
@@ -42,6 +43,9 @@ static void zynq_lv_timerTask(void *pvParameters) {
         xSemaphoreTake(LVGL_Mutex, portMAX_DELAY);
         lv_timer_handler();
         xSemaphoreGive(LVGL_Mutex);
+        if (xSemaphoreTake(key_handle, 0) == pdTRUE) {
+            zynq_lvgl_snapshot(disp_draw_buf.buf_act);
+        }
         vTaskDelayUntil(&xLastExecutionTime, pdMS_TO_TICKS(75));
     }
 }
@@ -141,7 +145,6 @@ static void zynq_lv_log_print(const char *buf) {
     print(buf);
 #endif
     outbyte('\r');
-    outbyte('\n');
 }
 
 static void zynq_btn_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {

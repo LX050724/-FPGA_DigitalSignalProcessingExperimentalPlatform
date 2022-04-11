@@ -95,7 +95,6 @@ set_property PACKAGE_PIN W16 [get_ports {DAC_Port_0_dac_data[4]}]
 set_property PACKAGE_PIN V15 [get_ports {DAC_Port_0_dac_data[6]}]
 
 set_property IOSTANDARD LVCMOS33 [get_ports {In2_0[0]}]
-set_property PULLDOWN true [get_ports {In2_0[0]}]
 
 set_property IOSTANDARD LVCMOS33 [get_ports IIC_1_0_scl_io]
 set_property IOSTANDARD LVCMOS33 [get_ports IIC_1_0_sda_io]
@@ -107,3 +106,6 @@ set_property PACKAGE_PIN T19 [get_ports {In2_0[0]}]
 set_disable_timing {get_cells design_1_i/ADDA/AXI4_IO_0/inst/AXI4_IO_v1_0_S00_AXI_inst/_reg*_reg[*]}
 set_false_path -from [get_pins {design_1_i/ADDA/AXI4_IO_0/inst/AXI4_IO_v1_0_S00_AXI_inst/_reg1_reg[*]/C}] -to [get_pins {design_1_i/ADDA/AXI4Stream_2_DAC_0/inst/data_reg[*]/D}]
 set_false_path -from [get_pins {design_1_i/ADDA/AXI4_IO_0/inst/AXI4_IO_v1_0_S00_AXI_inst/_reg2_reg[0]/C}] -to [get_pins design_1_i/ADDA/AXI4_Stream_Switch_0/inst/switch_reg_reg/D]
+
+set_property DRIVE 12 [get_ports IIC_1_0_scl_io]
+set_property DRIVE 12 [get_ports IIC_1_0_sda_io]

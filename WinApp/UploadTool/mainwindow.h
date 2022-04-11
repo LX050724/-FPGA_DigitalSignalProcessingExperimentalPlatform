@@ -7,6 +7,7 @@
 #include <QTemporaryDir>
 #include <QJsonArray>
 #include <QNetworkAccessManager>
+#include "download_win.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,16 +16,22 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow {
 Q_OBJECT
 
+    typedef enum {
+        TFTP_UPLOAD,
+        TFTP_DOWNLOAD,
+    } tftp_dir;
+
     typedef struct {
+        tftp_dir dir;
         QString filepath;
         QString targetDir;
         QString targetFilename;
     } tftp_uploadItem;
 
     typedef enum {
-        UDP_COMM_ACK,
-        UDP_COMM_ERR,
-        UDP_COMM_NO_MSG_ID,
+        UDP_COMM_ACK = 1,
+        UDP_COMM_ERR = 2,
+        UDP_COMM_NO_MSG_ID = 3,
     } UDP_COMM_CMD_CODE;
 
 public:
@@ -49,6 +56,8 @@ private slots:
 
     void on_actionCheck_firmware_Update_triggered();
 
+    void on_actionDownload_screen_shot_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString log_buffer;
@@ -64,18 +73,27 @@ private:
     QJsonArray fw_list;
     QJsonArray res_list;
     QJsonArray app_list;
-    QList<tftp_uploadItem> tftpUpload_fifo;
+    QList<tftp_uploadItem> tftp_fifo;
+
+    download_win *downloadWin;
 protected:
     void closeEvent(QCloseEvent *event) override;
 private:
-
     void update_fw();
-    void udp_sendMsg(uint8_t message_id, const QByteArray &data = {});
-    void tftpUpload(const QString &filepath, const QString &targetDir, const QString &targetFilename = QString());
+
     void unzip(const QString &file_path);
     void log_printf(const char *fmt, ...);
     void log_println(const char *fmt, ...);
     QList<MainWindow::tftp_uploadItem> searchDir(const QString &path, const QString &targetDir);
+
+Q_SIGNALS:
+    void receive_file_list(const QStringList &list);
+
+
+public slots:
+    void tftpUpload(const QString &filepath, const QString &targetDir, const QString &targetFilename = QString());
+    void tftpDownload(const QString &filepath, const QString &save_path);
+    void udp_sendMsg(uint8_t message_id, const QByteArray &data = {});
 };
 
 #endif // MAINWINDOW_H
