@@ -149,7 +149,7 @@ static void file_table_click_cb(lv_obj_t *obj, const char *path, const char *fil
                                   amp_max);
             lv_obj_add_flag(reload_btn, LV_OBJ_FLAG_CLICKABLE);
         } else {
-            InfoMessageBox("错误", "关闭", FileDecoder_status_string(status));
+            MessageBox_info("错误", "关闭", FileDecoder_status_string(status));
         }
     }
 }
@@ -158,13 +158,13 @@ void reload_btn_cb(lv_event_t *event) {
     LV_UNUSED(event);
     int fraction_bit = strtol(lv_textarea_get_text(fraction_bit_textarea), NULL, 10);
     if (fraction_bit > 24) {
-        InfoMessageBox("错误", "关闭", "分数长度大于24");
+        MessageBox_info("错误", "关闭", "分数长度大于24");
         return;
     }
     if (coe_len == 65) {
         for (int i = 0; i < 32; i++) {
             if (coe_raw_data[i] != coe_raw_data[64 - i]) {
-                InfoMessageBox("错误", "关闭", "FIR系数不符合偶对称条件");
+                MessageBox_info("错误", "关闭", "FIR系数不符合偶对称条件");
                 return;
             }
         }
@@ -172,12 +172,12 @@ void reload_btn_cb(lv_event_t *event) {
         if (ret == XST_SUCCESS) {
             SPU_SetFirShift(fraction_bit);
             LV_LOG_USER("FIR: file='%s', fraction_bit=%d", lv_label_get_text(path_label), fraction_bit);
-            InfoMessageBox("完成", "关闭", "滤波器系数重载完成");
+            MessageBox_info("完成", "关闭", "滤波器系数重载完成");
         } else {
-            InfoMessageBox("错误", "关闭", "重载FIR系数时发生错误 code:%d", ret);
+            MessageBox_info("错误", "关闭", "重载FIR系数时发生错误 code:%d", ret);
         }
     } else {
-        InfoMessageBox("错误", "关闭", "FIR系数长度不等于65");
+        MessageBox_info("错误", "关闭", "FIR系数长度不等于65");
     }
 }
 

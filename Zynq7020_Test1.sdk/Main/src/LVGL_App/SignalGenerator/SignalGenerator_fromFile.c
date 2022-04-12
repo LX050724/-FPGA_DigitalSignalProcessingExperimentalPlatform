@@ -128,6 +128,6 @@ static void start_btn_click_cb(lv_event_t *e) {
         DDS_wav_from_data(p, len);
         lv_mem_free(p);
     } else {
-        InfoMessageBox("错误", "关闭", FileDecoder_status_string(status));
+        MessageBox_info("错误", "关闭", FileDecoder_status_string(status));
     }
 }

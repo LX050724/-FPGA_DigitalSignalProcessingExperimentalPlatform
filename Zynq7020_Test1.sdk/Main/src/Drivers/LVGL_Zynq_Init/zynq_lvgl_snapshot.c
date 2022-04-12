@@ -12,6 +12,7 @@
 #include "BMP_encoder/bmp_encoder.h"
 #include "DS1337_Driver/DS1337_Driver.h"
 #include "ff.h"
+#include "zynq_lvgl_init.h"
 
 #pragma pack(1)
 typedef struct {
@@ -26,18 +27,23 @@ static TaskHandle_t snapshot_task_handle;
 
 static void zynq_lvgl_snapshot_task(void *p) {
     lv_color_t *screen;
-    char filename[64] = {0};
-    FILINFO file_info;
-    FRESULT res = f_stat("0:/ScreenShot", &file_info);
-    if (res != FR_OK) {
-        if (res == FR_NO_FILE) res = f_mkdir("0:/ScreenShot");
-        if (res != FR_OK) vTaskDelete(NULL);
-    }
+
 
     for (;;) {
         if (xQueuePeek(snapshot_queue, &screen, portMAX_DELAY) == pdTRUE) {
+
+            char filename[64] = {0};
+            FILINFO file_info;
+            FRESULT res = f_stat("0:/ScreenShot", &file_info);
+            if (res != FR_OK) {
+                if (res == FR_NO_FILE) res = f_mkdir("0:/ScreenShot");
+                if (res != FR_OK) vTaskDelete(NULL);
+            }
             struct tm t;
             int index = 0;
+            xSemaphoreTake(LVGL_Mutex, portMAX_DELAY);
+            lv_obj_t *messagebox = MessageBox_wait("请稍等", "正在保存截图");
+            xSemaphoreGive(LVGL_Mutex);
             DS1337_GetTime(NULL, &t);
             do {
                 sprintf(filename, "0:/ScreenShot/%04d-%02d-%02d_%02d-%02d-%02d_%d.bmp",
@@ -45,15 +51,22 @@ static void zynq_lvgl_snapshot_task(void *p) {
                 res = f_stat(filename, &file_info);
                 if (res == FR_OK) index++;
                 else if (res == FR_NO_FILE) break;
-                else goto err;
+                else {
+                    lv_msgbox_close(messagebox);
+                    goto err;
+                }
             } while (1);
-            if (bmp_save(1024, 600, screen, filename) == XST_SUCCESS) {
-                InfoMessageBox("屏幕截图", "OK", "屏幕截图保存至 %s", filename);
+            int save_res = bmp_save(VDMA_H_ACTIVE, VDMA_V_ACTIVE, screen, filename);
+            xSemaphoreTake(LVGL_Mutex, portMAX_DELAY);
+            lv_msgbox_close(messagebox);
+            if (save_res == XST_SUCCESS) {
+                MessageBox_info("屏幕截图", "OK", "屏幕截图保存至 %s", filename);
                 LV_LOG_INFO("save screen shot %s", filename);
             } else {
-                InfoMessageBox("屏幕截图", "OK", "屏幕截图保存失败");
+                MessageBox_info("屏幕截图", "OK", "屏幕截图保存失败");
                 LV_LOG_ERROR("save screen shot error");
             }
+            xSemaphoreGive(LVGL_Mutex);
             err:
             xQueueReceive(snapshot_queue, &screen, portMAX_DELAY);
             os_free(screen);
@@ -67,8 +80,10 @@ BaseType_t zynq_lvgl_snapshot(lv_color_t *gram) {
     if (snapshot_task_handle == NULL) {
         snapshot_queue = xQueueCreate(1, sizeof(lv_img_dsc_t *));
         configASSERT(snapshot_queue);
-        configASSERT(xTaskCreate(zynq_lvgl_snapshot_task,
-                                 "snapshot", 512, NULL, 4, &snapshot_task_handle));
+        TaskStatus_t status;
+        vTaskGetInfo(NULL, &status, pdFALSE, eInvalid);
+        configASSERT(xTaskCreate(zynq_lvgl_snapshot_task, "snapshot", 512,
+                                 NULL, status.uxCurrentPriority, &snapshot_task_handle));
     }
     lv_color_t *screen = os_malloc(VDMA_BUFFER_SIZE);
     LV_ASSERT_MALLOC(screen);

@@ -60,12 +60,12 @@ static void delete_file_callback(uint16_t index, void *userdata) {
 
     os_free(path);
 
-    InfoMessageBox("删除文件", "关闭", "'%s'删除成功", fs_data->delete_filename);
+    MessageBox_info("删除文件", "关闭", "'%s'删除成功", fs_data->delete_filename);
     fs_data->delete_filename = NULL;
     scan_file(userdata, fs_data->current_dir);
     return;
     err:
-    InfoMessageBox("删除文件", "关闭", "'%s'删除失败", fs_data->delete_filename);
+    MessageBox_info("删除文件", "关闭", "'%s'删除失败", fs_data->delete_filename);
     fs_data->delete_filename = NULL;
 }
 
@@ -86,11 +86,11 @@ static void lv_file_table_long_pressed_event(lv_event_t *event) {
     fs_data->delete_filename = filename;
 
     if (lv_table_has_cell_ctrl(target, row, col, FILE_SELECT_DIR_CTRL)) {
-        QuestMessageBox("删除文件", "是", "否", delete_file_callback,
-                        target, "是否删除文件夹'%s'?", filename);
+        MessageBox_question("删除文件", "是", "否", delete_file_callback,
+                            target, "是否删除文件夹'%s'?", filename);
     } else {
-        QuestMessageBox("删除文件", "是", "否", delete_file_callback,
-                        target, "是否删除文件'%s'?", filename);
+        MessageBox_question("删除文件", "是", "否", delete_file_callback,
+                            target, "是否删除文件'%s'?", filename);
     }
 }
 

@@ -28,6 +28,7 @@ static lv_disp_draw_buf_t disp_draw_buf;
 static lv_disp_t *disp = NULL;
 
 static void zynq_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_p);
+static void zynq_wait_cb(lv_disp_drv_t *drv);
 static void zynq_monitor_cb(lv_disp_drv_t *drv, uint32_t time, uint32_t px);
 static void zynq_lv_log_print(const char *buf);
 static void zynq_touch_read(lv_indev_drv_t *drv, lv_indev_data_t *data);
@@ -85,6 +86,7 @@ int zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio) {
     disp_drv.draw_buf = &disp_draw_buf;
     disp_drv.direct_mode = TRUE;
     disp_drv.full_refresh = TRUE;
+    disp_drv.wait_cb = zynq_wait_cb;
     disp_drv.flush_cb = zynq_flush_cb;
     //	disp_drv.monitor_cb = zynq_monitor_cb;
 
@@ -114,7 +116,7 @@ int zynq_lvgl_init(XIicPs *_iic, XGpioPs *_gpio) {
 
 #ifdef __USE_RTOS
     xTaskCreate(zynq_lv_timerTask, "LVGL Task", 2048,
-                NULL, 5, &rtos_TaskHandle);
+                NULL, 24, &rtos_TaskHandle);
 #endif
     return ret;
 }
@@ -176,4 +178,8 @@ static void zynq_touch_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
     /*Set the last pressed coordinates*/
     data->point.x = last_x;
     data->point.y = last_y;
+}
+
+void zynq_wait_cb(lv_disp_drv_t *drv) {
+    vTaskDelay(1);
 }

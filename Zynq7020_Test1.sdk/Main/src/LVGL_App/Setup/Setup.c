@@ -194,7 +194,7 @@ static void wait_timer_cb(lv_timer_t *timer) {
     if (ProgramFLASH_isfinished()) {
         lv_msgbox_close(timer->user_data);
         lv_timer_del(timer);
-        InfoMessageBox("完成", "关闭", "FLASH写入完成");
+        MessageBox_info("完成", "关闭", "FLASH写入完成");
     }
 }
 
@@ -203,17 +203,9 @@ static void flash_MsgBox_event_cb(uint16_t index, void *userdata) {
     if (index != 0) return;
     if (ProgramFLASH("0:/BOOT.BIN") != XST_SUCCESS) {
         LV_LOG_ERROR("FLASH编程错误");
-        InfoMessageBox("错误", "关闭", "创建FLASH编程任务失败");
+        MessageBox_info("错误", "关闭", "创建FLASH编程任务失败");
     } else {
-        const char *buttons[] = {"", "", ""};
-        lv_obj_t *messagebox = lv_msgbox_create(NULL, "请稍等", "正在写入FLASH . . .", buttons, false);
-        lv_obj_t *title = lv_msgbox_get_title(messagebox);
-        lv_obj_t *content = lv_msgbox_get_content(messagebox);
-        lv_obj_t *spinner = lv_spinner_create(content, 1000, 45);
-        lv_obj_align_to(spinner, lv_msgbox_get_text(messagebox), LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
-        lv_obj_center(messagebox);
-        lv_obj_add_style(title, &style_title, 0);
-        lv_obj_set_width(title, LV_HOR_RES / 2);
+        lv_obj_t *messagebox = MessageBox_wait("请稍等", "正在写入FLASH . . .");
         lv_timer_create(wait_timer_cb, 500, messagebox);
     }
 }
@@ -221,7 +213,7 @@ static void flash_MsgBox_event_cb(uint16_t index, void *userdata) {
 static void flash_btn_event_cb(lv_event_t *e) {
     LV_UNUSED(e);
     if (Fatfs_GetMountStatus(0) == FR_OK) {
-        QuestMessageBox(
+        MessageBox_question(
                 "写入固件",
                 "是", "否", flash_MsgBox_event_cb, NULL,
                 "    该操作会将SD卡中的BOOT.bin文件写入到QSPI Flash中, 写入期间不要断电\n"
@@ -229,7 +221,7 @@ static void flash_btn_event_cb(lv_event_t *e) {
                 "使用一个存有固件的SD卡启动设备重新进行此步骤即可\n"
                 "    是否开始刷入固件?");
     } else {
-        InfoMessageBox("错误", "取消", "未挂载SD卡, 无法更新FLASH固件");
+        MessageBox_info("错误", "取消", "未挂载SD卡, 无法更新FLASH固件");
     }
 }
 

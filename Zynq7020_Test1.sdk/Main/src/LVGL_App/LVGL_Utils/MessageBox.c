@@ -27,8 +27,9 @@ static void InfoEvent_cb(lv_event_t *e) {
  * @param NoText
  * @param callback 回调函数，参数为触发的按键序号, 0: Yes, 1: No
  */
-void QuestMessageBox(const char *title, const char *YesText, const char *NoText, void (*callback)(uint16_t, void *),
-                     void *userdata, const char *fmt, ...) {
+lv_obj_t *
+MessageBox_question(const char *title, const char *YesText, const char *NoText, void (*callback)(uint16_t, void *),
+                    void *userdata, const char *fmt, ...) {
     static const char *btns[3] = {NULL, NULL, ""};
     char buf[128] = {0};
     va_list ap;
@@ -49,9 +50,10 @@ void QuestMessageBox(const char *title, const char *YesText, const char *NoText,
     lv_obj_add_event_cb(mbox1, QuestEvent_cb, LV_EVENT_VALUE_CHANGED, userdata);
     lv_obj_set_width(mbox1, LV_HOR_RES / 2);
     lv_obj_center(mbox1);
+    return mbox1;
 }
 
-void InfoMessageBox(const char *title, const char *YesText, const char *fmt, ...) {
+lv_obj_t *MessageBox_info(const char *title, const char *YesText, const char *fmt, ...) {
     char buf[128] = {0};
     va_list ap;
     va_start(ap, fmt);
@@ -71,4 +73,24 @@ void InfoMessageBox(const char *title, const char *YesText, const char *fmt, ...
     lv_obj_add_event_cb(mbox1, InfoEvent_cb, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_set_width(mbox1, LV_HOR_RES / 2);
     lv_obj_center(mbox1);
+    return mbox1;
+}
+
+lv_obj_t *MessageBox_wait(const char *title, const char *fmt, ...) {
+    static const char *buttons[] = {"", "", ""};
+    char buf[128] = {0};
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+
+    lv_obj_t *messagebox = lv_msgbox_create(NULL, title, buf, buttons, false);
+    lv_obj_t *title_obj = lv_msgbox_get_title(messagebox);
+    lv_obj_t *content = lv_msgbox_get_content(messagebox);
+    lv_obj_t *spinner = lv_spinner_create(content, 1000, 45);
+    lv_obj_align_to(spinner, lv_msgbox_get_text(messagebox), LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
+    lv_obj_center(messagebox);
+    lv_obj_add_style(title_obj, &style_title, 0);
+    lv_obj_set_width(title_obj, LV_HOR_RES / 2);
+    return messagebox;
 }

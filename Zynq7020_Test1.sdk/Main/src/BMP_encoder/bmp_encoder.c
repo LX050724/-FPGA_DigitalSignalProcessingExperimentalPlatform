@@ -77,7 +77,9 @@ int bmp_save(int w, int h, lv_color_t *img, const char *filename) {
             line_buf[j].green = line[j].ch.green;
             line_buf[j].blue = line[j].ch.blue;
         }
+        vPortEnterCritical();
         res = f_write(&file, line_buf, line_size, &bw);
+        vPortExitCritical();
         if (res != FR_OK || bw != line_size) goto err;
     }
     os_free(line_buf);
