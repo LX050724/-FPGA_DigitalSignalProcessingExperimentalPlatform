@@ -6,6 +6,7 @@
 #include "Controller/ADC_Controller.h"
 #include "LVGL_Utils/slider.h"
 #include "math.h"
+#include "LVGL_Utils/Chart_zoom_plugin.h"
 
 static lv_obj_t *chart;
 static lv_chart_cursor_t *cursor_ver;
@@ -15,8 +16,6 @@ static lv_obj_t *zoom_x_slider;
 static lv_obj_t *zoom_y_slider;
 static lv_obj_t *measure_text_label;
 
-static float window_locate_x, window_locate_y;
-static lv_coord_t window_width, window_height;
 
 static union {
     struct {
@@ -34,8 +33,6 @@ static union {
 
 static void adc_timer_cb(lv_timer_t *timer);
 static void trigger_dd_cb(lv_event_t *e);
-static void chart_event_cb(lv_event_t *e);
-static void zoom_slider_cb(lv_event_t *e);
 static void trigger_level_slider_cb(lv_event_t *e);
 static void measure_checkbox_cb(lv_event_t *e);
 static void trigger_position_slider_cb(lv_event_t *e);
@@ -60,16 +57,15 @@ void Oscilloscope_create(lv_obj_t *parent) {
     lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, -5000, 5000);
     cursor_hor = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_BLUE), LV_DIR_HOR);
     cursor_ver = lv_chart_add_cursor(chart, lv_palette_main(LV_PALETTE_YELLOW), LV_DIR_VER);
-
+    lv_chart_install_zoom_plugin(chart);
     /**
      * x轴缩放控件组
      */
     zoom_x_slider = lv_slider_create(tile1);
     lv_slider_set_range(zoom_x_slider, 256, 4096);
-    lv_obj_add_flag(zoom_x_slider, LV_OBJ_FLAG_ADV_HITTEST);
     lv_obj_set_width(zoom_x_slider, LV_HOR_RES * 0.35);
     lv_obj_align_to(zoom_x_slider, tile1, LV_ALIGN_BOTTOM_LEFT, 15, -20);
-    lv_obj_add_event_cb(zoom_x_slider, zoom_slider_cb, LV_EVENT_VALUE_CHANGED, 0);
+    lv_obj_add_event_cb(zoom_x_slider, lv_chart_zoom_slider_x_cb, LV_EVENT_VALUE_CHANGED, chart);
 
     lv_obj_t *zoom_x_label = lv_label_create(tile1);
     lv_label_set_text_static(zoom_x_label, "水平缩放");
@@ -80,10 +76,9 @@ void Oscilloscope_create(lv_obj_t *parent) {
      */
     zoom_y_slider = lv_slider_create(tile1);
     lv_slider_set_range(zoom_y_slider, 256, 4096);
-    lv_obj_add_flag(zoom_x_slider, LV_OBJ_FLAG_ADV_HITTEST);
     lv_obj_set_width(zoom_y_slider, LV_HOR_RES * 0.35);
     lv_obj_align_to(zoom_y_slider, tile1, LV_ALIGN_BOTTOM_RIGHT, -15, -20);
-    lv_obj_add_event_cb(zoom_y_slider, zoom_slider_cb, LV_EVENT_VALUE_CHANGED, 1);
+    lv_obj_add_event_cb(zoom_y_slider, lv_chart_zoom_slider_y_cb, LV_EVENT_VALUE_CHANGED, chart);
 
     lv_obj_t *zoom_y_label = lv_label_create(tile1);
     lv_label_set_text_static(zoom_y_label, "垂直缩放");
@@ -166,9 +161,7 @@ void Oscilloscope_create(lv_obj_t *parent) {
     /**
      * 其他
      */
-    lv_obj_add_event_cb(chart, chart_event_cb, LV_EVENT_ALL, NULL);
     lv_timer_create(adc_timer_cb, 1, parent);
-    chart_event_cb(NULL);
 }
 
 /**
@@ -183,7 +176,7 @@ static void adc_timer_cb(lv_timer_t *timer) {
     if (ADC_get_data(&triggered) == XST_SUCCESS) {
         int16_t trigger_level = ADC_get_trigger_level();
         float self_height = lv_obj_get_self_height(chart);
-        lv_coord_t offset = (lv_obj_get_height(chart) - window_height) / 2;
+        lv_coord_t offset = (lv_obj_get_height(chart) - lv_chart_get_window_height(chart)) / 2;
         cursor_hor->pos.y = self_height * (1 - (trigger_level + 5000) / 10000.0) - lv_obj_get_scroll_top(chart) + offset;
         cursor_hor->pos_set = 1;
 
@@ -272,54 +265,6 @@ static void trigger_dd_cb(lv_event_t *e) {
     lv_obj_t *obj = lv_event_get_target(e);
     uint16_t selected = lv_dropdown_get_selected(obj);
     ADC_set_trigger_condition(selected);
-}
-
-/**
- * 图表控件事件回调，由于实现图表中心缩放
- * @param e
- */
-static void chart_event_cb(lv_event_t *e) {
-    lv_event_code_t code = (e == NULL) ? LV_EVENT_SCROLL_BEGIN : lv_event_get_code(e);
-    if (code == LV_EVENT_SCROLL_BEGIN || code == LV_EVENT_SCROLL) {
-        lv_coord_t self_height = lv_obj_get_self_height(chart);
-        lv_coord_t self_width = lv_obj_get_self_width(chart);
-        lv_coord_t scroll_top = lv_obj_get_scroll_top(chart);
-        lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(chart);
-        lv_coord_t scroll_left = lv_obj_get_scroll_left(chart);
-        lv_coord_t scroll_right = lv_obj_get_scroll_right(chart);
-        window_height = self_height - scroll_top - scroll_bottom;
-        window_width = self_width - scroll_left - scroll_right;
-        window_locate_x = (float) (scroll_left + window_width / 2) / self_width;
-        window_locate_y = (float) (scroll_top + window_height / 2) / self_height;
-    } else if (code == LV_EVENT_DRAW_PART_END) {
-        static lv_coord_t last_zoom_x, last_zoom_y;
-        lv_coord_t zoom_x = lv_slider_get_value(zoom_x_slider);
-        lv_coord_t zoom_y = lv_slider_get_value(zoom_y_slider);
-        if (last_zoom_x != zoom_x) {
-            last_zoom_x = zoom_x;
-            lv_coord_t scroll = window_locate_x * (window_width * (float) zoom_x / 256);
-            lv_obj_scroll_to_x(chart, scroll - window_width / 2, LV_ANIM_OFF);
-        }
-        if (last_zoom_y != zoom_y) {
-            last_zoom_y = zoom_y;
-            lv_coord_t scroll = window_locate_y * (window_height * (float) zoom_y / 256);
-            lv_obj_scroll_to_y(chart, scroll - window_height / 2, LV_ANIM_OFF);
-        }
-    }
-}
-
-/**
- * xy轴缩放滑块值改变回调
- * @param e
- */
-static void zoom_slider_cb(lv_event_t *e) {
-    lv_obj_t *obj = lv_event_get_target(e);
-    float zoom = lv_slider_get_value(obj);
-    if (lv_event_get_user_data(e) == 0) {
-        lv_chart_set_zoom_x(chart, zoom);
-    } else {
-        lv_chart_set_zoom_y(chart, zoom);
-    }
 }
 
 static void trigger_level_slider_cb(lv_event_t *e) {
