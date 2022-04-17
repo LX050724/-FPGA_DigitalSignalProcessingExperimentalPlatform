@@ -10,9 +10,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "math.h"
+#include "FreeRTOS_Mem/FreeRTOS_Mem.h"
 
 #define ADC_RawToVoltage_mV(AdcData) ((AdcData) * 10000 / 256)
 #define TRIGGER_NUM_MAX 128
+
+xSemaphoreHandle ADC_Mutex;
 
 static XAxiDma_BdRing *RingPtr;
 static XAxiDma_Bd *BdPtr;
@@ -32,6 +35,7 @@ int16_t ADC_Data[4096];
 static void ADC_calibration();
 
 int ADC_init_dma_channel(XAxiDma *interface) {
+    ADC_Mutex = xSemaphoreCreateMutex();
     XAxiDma_SelectCyclicMode(interface, XAXIDMA_DEVICE_TO_DMA, TRUE);
     RingPtr = XAxiDma_GetRxRing(interface);
     XAxiDma_BdRingEnableCyclicDMA(RingPtr);
@@ -63,63 +67,87 @@ static bool ADC_data_copy(int16_t trigger_pos) {
     } else return false;
 }
 
+static void ADC_process_data(bool *triggered) {
+    bool t = false;
+    int trigger_status = 0;
+    int trigger_pos1 = 0;
+    int16_t trigger_upper = trigger_level + trigger_hysteresis / 2;
+    int16_t trigger_lower = trigger_level - trigger_hysteresis / 2;
+    for (int i = 0; i < 8192; i++) {
+        int16_t voltage = ADC_RawToVoltage_mV(ADC_OriginalData[i]);
+        if (trigger_condition == RISING_EDGE_TRIGGER || trigger_condition == FALLING_EDGE_TRIGGER) {
+            if (trigger_condition == FALLING_EDGE_TRIGGER)
+                voltage = -voltage;
+            switch (trigger_status) {
+                case 0:
+                    if (voltage < trigger_lower)
+                        trigger_status = 1;
+                    break;
+                case 1:
+                    if (voltage > trigger_upper) {
+                        if (!t) t = ADC_data_copy(i);
+                        if (trigger_num < TRIGGER_NUM_MAX)
+                            trigger_locate[trigger_num++] = i;
+                        trigger_status = 0;
+                    }
+                    if (voltage > trigger_lower && voltage < trigger_upper) {
+                        trigger_status = 2;
+                        trigger_pos1 = i;
+                    }
+                    break;
+                case 2:
+                    if (voltage < trigger_lower)
+                        trigger_status = 1;
+                    else if (voltage > trigger_upper) {
+                        if (!t) t = ADC_data_copy((trigger_pos1 + i) / 2);
+                        if (trigger_num < TRIGGER_NUM_MAX)
+                            trigger_locate[trigger_num++] = (trigger_pos1 + i) / 2;
+                        trigger_status = 0;
+                    }
+                    break;
+            }
+        }
+    }
+    if (!t) ADC_data_copy(trigger_position);
+    if (triggered) *triggered = t;
+}
+
+int ADC_get_data_now(bool *triggered, TickType_t timeout) {
+    int status = XST_SUCCESS;
+    TickType_t tick = xTaskGetTickCount();
+    trigger_num = 0;
+
+    /* 向ADC Packager发送启动信号 */
+    SPU_SendPackPulse(ADC_PackPulse);
+    do {
+        vTaskDelay(1);
+        vPortEnterCritical();
+        XAXIDMA_CACHE_INVALIDATE(BdPtr);
+        vPortExitCritical();
+        uint32_t receive_len = XAxiDma_BdGetActualLength(BdPtr, 0xffffff);
+        if (receive_len == sizeof(ADC_OriginalData)) {
+            os_DCacheInvalidateRange(ADC_OriginalData, sizeof(ADC_OriginalData));
+            ADC_process_data(triggered);
+            return XST_SUCCESS;
+        }
+    } while (xTaskGetTickCount() < tick + timeout);
+    return XST_FAILURE;
+}
+
 int ADC_get_data(bool *triggered) {
     int status = XST_SUCCESS;
-    bool t = false;
     trigger_num = 0;
     vPortEnterCritical();
     XAXIDMA_CACHE_INVALIDATE(BdPtr);
     vPortExitCritical();
-    uint32_t receive_len = XAxiDma_BdGetActualLength(BdPtr, 0xffff);
+    uint32_t receive_len = XAxiDma_BdGetActualLength(BdPtr, 0xffffff);
     if (receive_len == sizeof(ADC_OriginalData)) {
         os_DCacheInvalidateRange(ADC_OriginalData, sizeof(ADC_OriginalData));
-        int trigger_status = 0;
-        int trigger_pos1 = 0;
-        int16_t trigger_upper = trigger_level + trigger_hysteresis / 2;
-        int16_t trigger_lower = trigger_level - trigger_hysteresis / 2;
-        for (int i = 0; i < 8192; i++) {
-            int16_t voltage = ADC_RawToVoltage_mV(ADC_OriginalData[i]);
-            if (trigger_condition == RISING_EDGE_TRIGGER || trigger_condition == FALLING_EDGE_TRIGGER) {
-                if (trigger_condition == FALLING_EDGE_TRIGGER)
-                    voltage = -voltage;
-                switch (trigger_status) {
-                    case 0:
-                        if (voltage < trigger_lower)
-                            trigger_status = 1;
-                        break;
-                    case 1:
-                        if (voltage > trigger_upper) {
-                            if (!t) t = ADC_data_copy(i);
-                            if (trigger_num < TRIGGER_NUM_MAX)
-                                trigger_locate[trigger_num++] = i;
-                            trigger_status = 0;
-                        }
-                        if (voltage > trigger_lower && voltage < trigger_upper) {
-                            trigger_status = 2;
-                            trigger_pos1 = i;
-                        }
-                        break;
-                    case 2:
-                        if (voltage < trigger_lower)
-                            trigger_status = 1;
-                        else if (voltage > trigger_upper) {
-                            if (!t) t = ADC_data_copy((trigger_pos1 + i) / 2);
-                            if (trigger_num < TRIGGER_NUM_MAX)
-                                trigger_locate[trigger_num++] = (trigger_pos1 + i) / 2;
-                            trigger_status = 0;
-                        }
-                        break;
-                }
-            }
-        }
+        ADC_process_data(triggered);
     } else {
         xil_printf("warning: ADC data length is incorrect\r\n");
         status = XST_DATA_LOST;
     }
-
-    if (!t) ADC_data_copy(trigger_position);
-    if (triggered) *triggered = t;
-
     /* 向ADC Packager发送启动信号 */
     SPU_SendPackPulse(ADC_PackPulse);
 
@@ -157,27 +185,27 @@ float ADC_get_mean() {
 }
 
 float ADC_get_mean_cycle() {
-    double sum = 0;
+    int64_t sum = 0;
     if (trigger_num >= 2) {
         for (int i = trigger_locate[0]; i < trigger_locate[trigger_num - 1]; i++)
-            sum += ADC_Data[i];
-        return sum / (trigger_locate[trigger_num - 1] - trigger_locate[0]);
+            sum += ADC_OriginalData[i];
+        return ADC_RawToVoltage_mV((float) sum) / (trigger_locate[trigger_num - 1] - trigger_locate[0]);
     } else return NAN;
 }
 
 float ADC_get_rms() {
     double sum = 0;
     for (int i = 0; i < 4096; i++)
-        sum += pow(ADC_Data[i], 2);
-    return sqrtl(sum / 4096);
+        sum += pow(ADC_Data[i], 2) / 4096;
+    return sqrtl(sum);
 }
 
 float ADC_get_rms_cycle() {
     double sum = 0;
     if (trigger_num >= 2) {
         for (int i = trigger_locate[0]; i < trigger_locate[trigger_num - 1]; i++)
-            sum += pow(ADC_Data[i], 2);
-        return sqrtl(sum / (trigger_locate[trigger_num - 1] - trigger_locate[0]));
+            sum += pow(ADC_OriginalData[i], 2) / (trigger_locate[trigger_num - 1] - trigger_locate[0]);
+        return ADC_RawToVoltage_mV(sqrtl(sum));
     } else return NAN;
 }
 

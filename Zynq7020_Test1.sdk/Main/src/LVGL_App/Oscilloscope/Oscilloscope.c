@@ -161,7 +161,7 @@ void Oscilloscope_create(lv_obj_t *parent) {
     /**
      * 其他
      */
-    lv_timer_create(adc_timer_cb, 1, parent);
+    lv_timer_create(adc_timer_cb, 1, chart);
 }
 
 /**
@@ -171,6 +171,8 @@ void Oscilloscope_create(lv_obj_t *parent) {
 static void adc_timer_cb(lv_timer_t *timer) {
     if (!lv_obj_is_visible(timer->user_data))
         return;
+
+    if (xSemaphoreTake(ADC_Mutex, 0) != pdTRUE) return;
     LV_UNUSED(timer);
     bool triggered;
     if (ADC_get_data(&triggered) == XST_SUCCESS) {
@@ -255,6 +257,7 @@ static void adc_timer_cb(lv_timer_t *timer) {
         lv_mem_free(buf);
         lv_chart_refresh(chart);
     }
+    xSemaphoreGive(ADC_Mutex);
 }
 
 /**

@@ -4,7 +4,7 @@
 
 #include "DDS_Controller.h"
 #include "FreeRTOS_Mem/FreeRTOS_Mem.h"
-#include "math.h"
+#include "arm_math.h"
 #include "check.h"
 
 #define USE_DDS_RAM 1
@@ -109,7 +109,7 @@ static int DDS_general_generator(DDS_sine_t *param, double (*core)(double, void 
 
 static double DDS_sin_core(double x, void *param) {
     (void) param;
-    return sin(x);
+    return arm_sin_f32(x);
 }
 
 static double DDS_triangle_core(double x, void *param) {

@@ -47,7 +47,7 @@ static void zynq_lvgl_snapshot_task(void *p) {
             DS1337_GetTime(NULL, &t);
             do {
                 sprintf(filename, "0:/ScreenShot/%04d-%02d-%02d_%02d-%02d-%02d_%d.bmp",
-                        t.tm_year + 1900, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, index);
+                        t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, index);
                 res = f_stat(filename, &file_info);
                 if (res == FR_OK) index++;
                 else if (res == FR_NO_FILE) break;

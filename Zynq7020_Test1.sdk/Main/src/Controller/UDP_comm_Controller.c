@@ -10,6 +10,7 @@
 #include "cJSON.h"
 
 static struct pbuf *get_firmware_version_id0(struct pbuf *p) {
+    LWIP_UNUSED_ARG(p);
     const char *version = getFirmwareVersion();
     return send_data(0, version, strlen(version) + 1);
 }
@@ -19,7 +20,10 @@ static struct pbuf *get_filename_id1(struct pbuf *p) {
     cJSON *array = cJSON_CreateArray();
     if (array == NULL) goto err;
 
-    char *gbk = UTF8_TO_GBK(((char *) p->payload) + 1);
+    char *data = p->payload;
+    if (data[p->len - 1] != 0) goto err;
+
+    char *gbk = UTF8_TO_GBK(data + 1);
     FRESULT res = f_opendir(&dir, gbk);
     os_free(gbk);
     if (res != FR_OK) goto err;

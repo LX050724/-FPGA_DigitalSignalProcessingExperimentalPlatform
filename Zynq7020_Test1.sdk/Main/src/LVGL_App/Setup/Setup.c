@@ -13,6 +13,11 @@
 #include "Controller/SPU_Controller.h"
 #include "main.h"
 
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "Controller/ADC_Controller.h"
+#include "Controller/DAC_Controller.h"
+
 static lv_style_t style_title, style_sec_title, style_content;
 
 static lv_obj_t *sd_info;
@@ -69,7 +74,7 @@ void Setup_create(lv_obj_t *parent) {
                          LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_t *scope_drop = lv_dropdown_create(signal_select_cont);
     lv_dropdown_set_options_static(scope_drop, "ADC\nFIR");
-    lv_obj_add_event_cb(scope_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *)CHANNEL_INDEX_SCOPE);
+    lv_obj_add_event_cb(scope_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *) CHANNEL_INDEX_SCOPE);
     lv_obj_set_grid_cell(scope_drop, LV_GRID_ALIGN_STRETCH, 0, 1,
                          LV_GRID_ALIGN_STRETCH, 1, 1);
 
@@ -79,7 +84,7 @@ void Setup_create(lv_obj_t *parent) {
                          LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_t *fft_drop = lv_dropdown_create(signal_select_cont);
     lv_dropdown_set_options_static(fft_drop, "ADC\nFIR");
-    lv_obj_add_event_cb(fft_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *)CHANNEL_INDEX_FFT);
+    lv_obj_add_event_cb(fft_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *) CHANNEL_INDEX_FFT);
     lv_obj_set_grid_cell(fft_drop, LV_GRID_ALIGN_STRETCH, 1, 1,
                          LV_GRID_ALIGN_STRETCH, 1, 1);
 
@@ -89,7 +94,7 @@ void Setup_create(lv_obj_t *parent) {
                          LV_GRID_ALIGN_STRETCH, 0, 1);
     lv_obj_t *dac_drop = lv_dropdown_create(signal_select_cont);
     lv_dropdown_set_options_static(dac_drop, "DDS\nFIR");
-    lv_obj_add_event_cb(dac_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *)CHANNEL_INDEX_DAC);
+    lv_obj_add_event_cb(dac_drop, signal_dropdown_cb, LV_EVENT_VALUE_CHANGED, (void *) CHANNEL_INDEX_DAC);
     lv_obj_set_grid_cell(dac_drop, LV_GRID_ALIGN_STRETCH, 2, 1,
                          LV_GRID_ALIGN_STRETCH, 1, 1);
     /* 信号源选择容器 END */
@@ -309,5 +314,15 @@ static void refresh_timer_cb(lv_timer_t *timer) {
 static void signal_dropdown_cb(lv_event_t *event) {
     lv_obj_t *dropdown = lv_event_get_target(event);
     Channel_Index channelIndex = (Channel_Index) lv_event_get_user_data(event);
-    SPU_SwitchChannelSource(channelIndex, lv_dropdown_get_selected(dropdown));
+    if (channelIndex == CHANNEL_INDEX_SCOPE) {
+        if (xSemaphoreTake(ADC_Mutex, 0)) {
+            SPU_SwitchChannelSource(CHANNEL_INDEX_SCOPE, lv_dropdown_get_selected(dropdown));
+            xSemaphoreGive(ADC_Mutex);
+        } else lv_dropdown_set_selected(dropdown, !lv_dropdown_get_selected(dropdown));
+    } else if (channelIndex == CHANNEL_INDEX_DAC) {
+        if (xSemaphoreTake(DAC_Mutex, 0)) {
+            SPU_SwitchChannelSource(CHANNEL_INDEX_DAC, lv_dropdown_get_selected(dropdown));
+            xSemaphoreGive(DAC_Mutex);
+        } else lv_dropdown_set_selected(dropdown, !lv_dropdown_get_selected(dropdown));
+    } else SPU_SwitchChannelSource(channelIndex, lv_dropdown_get_selected(dropdown));
 }

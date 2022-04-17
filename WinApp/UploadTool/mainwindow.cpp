@@ -176,7 +176,7 @@ void MainWindow::udp_readyRead() {
     log_printf("<font color=\"#2E86C1\">Device[%s:%d]--></font>", sender.toString().data(), senderPort);
     switch (message_id) {
         case 0: {
-            fw_version = QString(datagram.constData() + 1);
+            fw_version = data;
             log_println("<font color=\"#D4AC0D\">Firmware version: %s</font>", qUtf8Printable(fw_version));
             update_fw();
             break;
@@ -195,6 +195,7 @@ void MainWindow::udp_readyRead() {
 void MainWindow::udp_sendMsg(uint8_t message_id, const QByteArray &data) {
     QByteArray _data = data;
     _data.push_front((char) message_id);
+    _data.push_back('\0');
     udpSocket->writeDatagram(_data, address, 70);
 }
 

@@ -63,8 +63,11 @@ static void start_btn_create(lv_obj_t *parent, void *user_data) {
 }
 
 static void start_btn_click_cb(lv_event_t *event) {
-    if (event->user_data) {
-        DDS_wav_generator(event->user_data);
+    if (lv_event_get_user_data(event)) {
+        if (xSemaphoreTake(DAC_Mutex, 0) == pdTRUE) {
+            DDS_wav_generator(event->user_data);
+            xSemaphoreGive(DAC_Mutex);
+        }
     }
 }
 

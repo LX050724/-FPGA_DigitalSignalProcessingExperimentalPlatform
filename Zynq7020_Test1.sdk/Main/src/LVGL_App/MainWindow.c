@@ -14,6 +14,7 @@
 #include "MainWindow.h"
 #include "LwIP_init/LwIP_init.h"
 #include "lwip/ip4.h"
+#include "NetworkAnalyzer/NetworkAnalyzer.h"
 
 
 lv_obj_t *tabview;
@@ -83,6 +84,7 @@ void mainWindowInit() {
 //        lv_page_set_scroll_propagation(tabs[i], false);
     Oscilloscope_create(tabs[0]);
     SpectrumAnalyzer_create(tabs[1]);
+    NetworkAnalyzer_create(tabs[2]);
     DigitalFilter_create(tabs[3]);
     SignalGenerator_create(tabs[4]);
     Setup_create(tabs[5]);

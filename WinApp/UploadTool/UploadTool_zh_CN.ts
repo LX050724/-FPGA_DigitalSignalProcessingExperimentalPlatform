@@ -141,28 +141,28 @@
         <translation>无效的IP地址</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="233"/>
-        <location filename="mainwindow.cpp" line="338"/>
-        <location filename="mainwindow.cpp" line="352"/>
-        <location filename="mainwindow.cpp" line="370"/>
-        <location filename="mainwindow.cpp" line="383"/>
+        <location filename="mainwindow.cpp" line="234"/>
+        <location filename="mainwindow.cpp" line="339"/>
+        <location filename="mainwindow.cpp" line="353"/>
+        <location filename="mainwindow.cpp" line="371"/>
+        <location filename="mainwindow.cpp" line="384"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="338"/>
+        <location filename="mainwindow.cpp" line="339"/>
         <source>Can not download folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="370"/>
+        <location filename="mainwindow.cpp" line="371"/>
         <source>File does not exist</source>
         <translation>文件不存在</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="233"/>
-        <location filename="mainwindow.cpp" line="352"/>
-        <location filename="mainwindow.cpp" line="383"/>
+        <location filename="mainwindow.cpp" line="234"/>
+        <location filename="mainwindow.cpp" line="353"/>
+        <location filename="mainwindow.cpp" line="384"/>
         <source>Can not open process</source>
         <translation>不能打开进程</translation>
     </message>
@@ -181,7 +181,7 @@
         <translation>选择固件文件</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="305"/>
+        <location filename="mainwindow.cpp" line="306"/>
         <source>Discover a new version
 firmware upgrade log:
 </source>
@@ -193,23 +193,23 @@ firmware upgrade log:
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="323"/>
+        <location filename="mainwindow.cpp" line="324"/>
         <source>is running</source>
         <translation>正在运行</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="323"/>
+        <location filename="mainwindow.cpp" line="324"/>
         <source>A task is currently running</source>
         <translation>有任务正在运行</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="303"/>
-        <location filename="mainwindow.cpp" line="307"/>
+        <location filename="mainwindow.cpp" line="304"/>
+        <location filename="mainwindow.cpp" line="308"/>
         <source>upgrade</source>
         <translation>升级</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="303"/>
+        <location filename="mainwindow.cpp" line="304"/>
         <source>The current version is the latest version</source>
         <translation>当前版本为最新版</translation>
     </message>

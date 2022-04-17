@@ -76,7 +76,7 @@
 
 XIicPs iic0, iic1;
 XGpioPs gpio;
-XAxiDma dma0, dma1, dma2;
+XAxiDma dma0, dma1;
 XQspiPs QspiInstance;
 XAdcPs xAdcPs;
 

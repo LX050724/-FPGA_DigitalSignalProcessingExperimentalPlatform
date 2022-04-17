@@ -24,7 +24,7 @@
 
 extern XIicPs iic0, iic1;
 extern XGpioPs gpio;
-extern XAxiDma dma0, dma1, dma2;
+extern XAxiDma dma0, dma1;
 extern XQspiPs QspiInstance;
 extern XAdcPs xAdcPs;
 extern SemaphoreHandle_t key_handle;
