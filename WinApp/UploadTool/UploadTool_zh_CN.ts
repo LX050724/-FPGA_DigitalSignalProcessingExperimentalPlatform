@@ -5,85 +5,85 @@
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.ui" line="14"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="191"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="191"/>
         <source>Upload Tool</source>
         <translation>上传工具</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="23"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="204"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="204"/>
         <source>IP Address:</source>
         <translation>IP地址：</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="30"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="205"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="205"/>
         <source>192.168.20.10</source>
         <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="37"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="206"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="206"/>
         <source>Upload COE:</source>
         <translation>上传COE：</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="47"/>
         <location filename="mainwindow.ui" line="71"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="207"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="210"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="207"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="210"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="54"/>
         <location filename="mainwindow.ui" line="78"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="208"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="211"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="208"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="211"/>
         <source>Upload</source>
         <translation>上传</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="61"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="209"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="209"/>
         <source>Upload Wave:</source>
         <translation>上传波形：</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="85"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="212"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="212"/>
         <source>Set</source>
         <translation>设置</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="94"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="213"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="213"/>
         <source>Log</source>
         <translation>日志</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="123"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="214"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="214"/>
         <source>Firmware</source>
         <translation>固件</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="130"/>
         <location filename="mainwindow.ui" line="149"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="192"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="215"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="192"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="215"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="138"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="216"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="216"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="154"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="193"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="193"/>
         <location filename="mainwindow.cpp" line="120"/>
         <source>About</source>
         <translation>关于</translation>
@@ -91,8 +91,8 @@
     <message>
         <location filename="mainwindow.ui" line="159"/>
         <location filename="mainwindow.ui" line="162"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="194"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="196"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="194"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="196"/>
         <source>Check app update</source>
         <oldsource>Chick app update</oldsource>
         <translation>检查App更新</translation>
@@ -100,14 +100,14 @@
     <message>
         <location filename="mainwindow.ui" line="167"/>
         <location filename="mainwindow.ui" line="170"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="198"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="200"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="198"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="200"/>
         <source>Check firmware update</source>
         <translation>检查固件更新</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="180"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="203"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="203"/>
         <source>Download screen shot</source>
         <translation type="unfinished"></translation>
     </message>
@@ -117,7 +117,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="175"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_mainwindow.h" line="202"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_mainwindow.h" line="202"/>
         <source>Upload firmware </source>
         <translation>升级固件 </translation>
     </message>
@@ -218,19 +218,19 @@ firmware upgrade log:
     <name>download_win</name>
     <message>
         <location filename="download_win.ui" line="14"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_download_win.h" line="74"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_download_win.h" line="74"/>
         <source>Download screen shot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="download_win.ui" line="32"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_download_win.h" line="75"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_download_win.h" line="75"/>
         <source>refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="download_win.ui" line="52"/>
-        <location filename="cmake-build-debug/UploadTool_autogen/include/ui_download_win.h" line="76"/>
+        <location filename="cmake-build-release/UploadTool_autogen/include/ui_download_win.h" line="76"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
